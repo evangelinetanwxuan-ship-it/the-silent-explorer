@@ -448,8 +448,8 @@ main{padding-bottom:90px}
 .cert-name input:focus{outline:3px solid #fff;outline-offset:2px}
 .cert{position:relative;text-align:center;color:#2a2238;background:radial-gradient(circle at 50% 0,#fffdf6,#f5e7c8);border:4px solid #d9a640;outline:2px solid #d9a640;outline-offset:-14px;border-radius:20px;padding:34px 30px 24px;margin-top:14px;box-shadow:0 12px 44px rgba(0,0,0,.5);-webkit-print-color-adjust:exact;print-color-adjust:exact;animation:fade .6s}
 .cert .ck{font-family:"Space Mono",monospace;letter-spacing:.3em;font-size:.78rem;color:#8a6a1f;text-transform:uppercase}
-#s-end .cert h2{font-size:clamp(1.6rem,5vw,2.5rem);color:#3b2a6b;margin:.1em 0 .2em}
-#s-end .cert p{color:#4a4060;font-size:1.02rem;margin:.35em auto;max-width:560px}
+.cert-wrap .cert h2{font-size:clamp(1.6rem,5vw,2.5rem);color:#3b2a6b;margin:.1em 0 .2em}
+.cert-wrap .cert p{color:#4a4060;font-size:1.02rem;margin:.35em auto;max-width:560px}
 .cert .who{display:inline-block;min-width:60%;font-size:clamp(1.7rem,6vw,2.8rem);font-weight:700;color:#141a33;border-bottom:2px solid #d9a640;padding:0 .4em;margin:.1em 0 .2em;overflow-wrap:anywhere}
 .seals{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:16px 0 10px}
 .seal{background:#fff;border:2px solid #ead9a9;border-radius:14px;padding:8px 6px 10px;font-size:.85rem;color:#5a5070;line-height:1.35}
@@ -457,7 +457,7 @@ main{padding-bottom:90px}
 .seal b{display:block;color:#141a33;font-size:.98rem}
 .seal .ok{color:#178a76;font-weight:700}
 .seal.miss{opacity:.45;filter:grayscale(1)}
-#s-end .cert p.q{font-family:"Space Mono",monospace;color:#1f8a78;font-size:.92rem}
+.cert-wrap .cert p.q{font-family:"Space Mono",monospace;color:#1f8a78;font-size:.92rem}
 .sigs{display:flex;justify-content:space-between;gap:14px;margin-top:18px;flex-wrap:wrap}
 .sig{flex:1;min-width:140px;font-size:.8rem;color:#6a6080}
 .sig i{display:block;font-style:normal;font-size:1.25rem;font-weight:600;color:#3b2a6b;padding-bottom:4px;border-bottom:1.5px solid #9a8aa8;margin-bottom:4px}
@@ -1767,7 +1767,7 @@ const escH=s=>s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&
 const CERT_BONUS=3;
 function certData(){const n=ORDER.filter(k=>done.has(k)).length,bn=EXTRA.filter(k=>done.has(k)).length,all=n===ORDER.length,unlocked=all&&bn>=CERT_BONUS;
  return{n,bn,bt:EXTRA.length,all,unlocked,name:certName.trim()||'Space Explorer',title:all&&bn===EXTRA.length?'Master Memory Keeper':'Official Memory Keeper',
-  body:`helped all four story explorers and ${bn} bonus explorer${bn===1?'':'s'} remember who they were, and promised to keep telling their stories.`,
+  body:`completed all 4 main explorers and ${bn} bonus explorer${bn===1?'':'s'}, helped them remember who they were, and promised to keep telling their stories.`,
   date:new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})}}
 function renderCert(){const d=certData();
  $('#certLock').classList.toggle('hidden',d.unlocked);$('#certBody').classList.toggle('hidden',!d.unlocked);
@@ -1782,7 +1782,7 @@ function renderCert(){const d=certData();
  $('#cert').innerHTML=`<div class="stamp" aria-hidden="true">${d.title[0]==='M'?'🏆':d.all?'🏅':'⭐'}</div>
  <div class="ck">Certificate of Remembrance</div><h2>${d.title}</h2><p>This certifies that</p><div class="who" id="certWho">${escH(d.name)}</div><p>${d.body}</p>
  <div class="seals">${ORDER.map(k=>{const c=CERT[k],ok=done.has(k);return `<div class="seal ${ok?'':'miss'}">${CERT_SVG[k]()}<b>${c[0]}</b>${c[1]}<br><span class="${ok?'ok':''}">${ok?'✔ '+c[2]:'Not visited yet'}</span></div>`}).join('')}</div>
- <div class="bonusline">🛰️ Bonus explorers remembered: <b>${d.bn} / ${d.bt}</b></div>
+ <div class="bonusline">✅ Completed: <b>4 main explorers</b> + <b>${d.bn} bonus explorer${d.bn===1?'':'s'}</b></div>
  <p class="q">"No explorer is forgotten — as long as someone tells their story."</p>
  <div class="sigs"><div class="sig"><i>ECHO-7</i>Guide · story character</div><div class="sig"><i>${d.date}</i>Date</div><div class="sig"><i>Aira</i>Fellow explorer · story character</div></div>
  <div class="fine">The Silent Explorers · NASA Space Apps 2026 project. A just-for-fun certificate from the game, not an official NASA document.</div>`}
@@ -1822,7 +1822,7 @@ async function certPNG(){
   g.textAlign='center';g.font='700 30px Fredoka, sans-serif';g.fillStyle='#141a33';g.fillText(ci[0],x+150,y+198);
   g.font='400 22px Fredoka, sans-serif';g.fillStyle='#5a5070';g.fillText(ci[1],x+150,y+228);
   g.font='600 22px Fredoka, sans-serif';g.fillStyle=ok?'#178a76':'#5a5070';g.fillText(ok?'✔ '+ci[2]:'Not visited yet',x+150,y+256);g.restore()});
- C(`🛰️ Bonus explorers remembered: ${d.bn} / ${d.bt}`,872,'600 28px Fredoka, sans-serif','#3b2a6b');
+ C(`✅ Completed: 4 main explorers + ${d.bn} bonus explorer${d.bn===1?'':'s'}`,872,'600 28px Fredoka, sans-serif','#3b2a6b');
  C('"No explorer is forgotten — as long as someone tells their story."',922,'400 24px "Space Mono", monospace','#1f8a78');
  [['ECHO-7','Guide · story character',340],[d.date,'Date',800],['Aira','Fellow explorer · story character',1260]].forEach(([a,b,x])=>{
   g.textAlign='center';g.font='600 36px Fredoka, sans-serif';g.fillStyle='#3b2a6b';g.fillText(a,x,985);
