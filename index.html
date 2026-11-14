@@ -477,6 +477,9 @@ main{padding-bottom:90px}
 .req .stars{font-size:1.2rem;letter-spacing:.1em}
 @media(max-width:560px){.req{grid-template-columns:1fr}}
 .certreq{text-align:center;color:var(--muted);font-size:.95rem;margin:14px 0 0}
+.endbtns{gap:14px;align-items:stretch}
+.endbtns .btn{flex:1 1 300px;max-width:440px;line-height:1.2}
+.endbtns .btn small{display:block;font-size:.8rem;font-weight:500;opacity:.8;margin-top:4px}
 .btn.certbtn{background:linear-gradient(180deg,#ffe08a,#f2b84b);box-shadow:0 4px 0 #b9852a}
 .btn.certbtn:active{box-shadow:0 1px 0 #b9852a}
 .btn.certbtn.locked{background:rgba(255,209,102,.1);color:var(--accent);border:2px dashed var(--accent);box-shadow:none}
@@ -555,7 +558,7 @@ main{padding-bottom:90px}
     <div class="photo hidden" id="lbinfo" style="padding:14px 16px"></div>
     <p class="datanote">🛰️ <b>Find any spacecraft yourself:</b> the <a href="https://nssdc.gsfc.nasa.gov/" target="_blank" rel="noopener">NASA Space Science Data Coordinated Archive (NSSDCA)</a> is NASA's public catalogue of everything sent into space: its mission details, where it ended up and whether it still works.<br><small>NASA does not endorse any non-U.S. Government entity and is not responsible for information contained on non-U.S. Government websites.</small></p>
     <p class="certreq" id="certReq"></p>
-    <div class="row"><button class="btn teal big hidden" id="finale">📡 Finale: Who is ECHO?</button><button class="btn big certbtn locked" id="certBtn">🔒 My certificate</button></div>
+    <div class="row endbtns"><button class="btn teal big hidden" id="finale">📡 Finale: Who is ECHO?</button><button class="btn big certbtn locked" id="certBtn">🔒 My certificate</button></div>
   </section>
 
   <!-- MISSION -->
@@ -1739,12 +1742,12 @@ Sound.paint();
 document.querySelectorAll('.pin').forEach(p=>p.onclick=()=>openMission(p.dataset.id));
 function renderMap(){
  const nd=k=>k.filter(x=>done.has(x)).length;$('#progress').textContent=`Story explorers: ${nd(ORDER)} / ${ORDER.length} · Bonus: ${nd(EXTRA)} / ${EXTRA.length}`;
- {const ok=nd(ORDER)===ORDER.length&&nd(EXTRA)>=CERT_BONUS;const cb=$('#certBtn');cb.classList.toggle('locked',!ok);cb.textContent=ok?'🏅 Get my certificate!':'🔒 My certificate';$('#certReq').innerHTML=ok?'🏅 <b>Certificate unlocked!</b> Tap the gold button below to get it.':`🔒 <b>Certificate:</b> finish all ${ORDER.length} story explorers (${nd(ORDER)}/${ORDER.length}) and ${CERT_BONUS} bonus explorers (${Math.min(nd(EXTRA),CERT_BONUS)}/${CERT_BONUS}) to unlock it.`}
+ {const ok=nd(ORDER)===ORDER.length&&nd(EXTRA)>=CERT_BONUS;const cb=$('#certBtn');cb.classList.toggle('locked',!ok);cb.innerHTML=ok?'🏅 Get my certificate!<small>Unlocked: tap to get it</small>':`🔒 My certificate<small>${nd(ORDER)}/${ORDER.length} story · ${Math.min(nd(EXTRA),CERT_BONUS)}/${CERT_BONUS} bonus</small>`;$('#certReq').innerHTML=ok?'🏅 <b>Certificate unlocked!</b> Tap the gold button below to get it.':`🔒 <b>Certificate:</b> finish all ${ORDER.length} story explorers (${nd(ORDER)}/${ORDER.length}) and ${CERT_BONUS} bonus explorers (${Math.min(nd(EXTRA),CERT_BONUS)}/${CERT_BONUS}) to unlock it.`}
  document.querySelectorAll('.pin').forEach(p=>p.classList.toggle('done',done.has(p.dataset.id)));
  $('#cards').innerHTML=ORDER.map(k=>`<button class="card ${done.has(k)?'done':''}" data-id="${k}"><div class="th">${M[k].svg()}</div><div><b>${M[k].name}</b><small>${M[k].nick}</small><span class="st">${done.has(k)?'✔ Memory restored':'● Waiting for you'}</span></div></button>`).join('');
  $('#bonuscards').innerHTML=EXTRA.map(k=>`<button class="card ${done.has(k)?'done':''}" data-id="${k}"><div class="th">${M[k].svg()}</div><div><span class="wtag">${{moon:'🌕 MOON',mars:'🔴 MARS',deep:'🌌 DEEP SPACE'}[M[k].world]}</span><b>${M[k].short}</b><small>${M[k].nick}</small><span class="st">${done.has(k)?'✔ Memory restored':'● Waiting for you'}</span></div></button>`).join('');
  document.querySelectorAll('.card').forEach(c=>c.onclick=()=>openMission(c.dataset.id));
- $('#finale').classList.remove('hidden');$('#finale').textContent=nd(ORDER)<ORDER.length?`📡 Finale: Who is ECHO? (${nd(ORDER)}/${ORDER.length} story explorers — best saved for last!)`:'📡 Finale: Who is ECHO?';
+ $('#finale').classList.remove('hidden');$('#finale').innerHTML=`📡 Finale: Who is ECHO?<small>${nd(ORDER)<ORDER.length?`${nd(ORDER)}/${ORDER.length} story explorers · best saved for last!`:'All story explorers remembered!'}</small>`;
  $('#leftbehind').innerHTML=['moon','mars','deep'].map(w=>`<div class="world"><h3>${{moon:'🌕 On the Moon',mars:'🔴 On Mars',deep:'🌌 Out in deep space'}[w]}</h3><div class="lb">${LEFT[w].map((x,i)=>`<button data-w="${w}" data-i="${i}" class="${x[3]?'play':''} ${x[4]||''}">${x[0]} ${x[1]}${x[3]?' ▶':''}</button>`).join('')}</div></div>`).join('');
  document.querySelectorAll('.lb button').forEach(b=>b.onclick=()=>{const x=LEFT[b.dataset.w][+b.dataset.i],box=$('#lbinfo');
   document.querySelectorAll('.lb button').forEach(o=>o.classList.toggle('on',o===b));
