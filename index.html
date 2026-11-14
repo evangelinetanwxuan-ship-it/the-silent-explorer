@@ -480,6 +480,7 @@ main{padding-bottom:90px}
 .endbtns{gap:14px;align-items:stretch}
 .endbtns .btn{flex:1 1 300px;max-width:440px;line-height:1.2}
 .endbtns .btn small{display:block;font-size:.8rem;font-weight:500;opacity:.8;margin-top:4px}
+.btn.teal.locked{background:rgba(94,230,208,.08);color:var(--teal);border:2px dashed var(--teal);box-shadow:none}
 .btn.certbtn{background:linear-gradient(180deg,#ffe08a,#f2b84b);box-shadow:0 4px 0 #b9852a}
 .btn.certbtn:active{box-shadow:0 1px 0 #b9852a}
 .btn.certbtn.locked{background:rgba(255,209,102,.1);color:var(--accent);border:2px dashed var(--accent);box-shadow:none}
@@ -1733,7 +1734,8 @@ $('#start').onclick=()=>{Sound.init();cutscene('Prologue','The Parcel',PROLOGUE,
 function paintResume(){const n=[...ORDER,...EXTRA].filter(k=>done.has(k)).length,r=$('#resume');r.classList.toggle('hidden',!n);r.textContent=`🛰️ Continue exploring · ${n} ${n===1?'memory':'memories'} restored`}
 $('#resume').onclick=()=>{Sound.init();show('s-map')};
 paintResume();
-const playFinale=()=>cutscene('Finale','Who is ECHO?',FINALE,'listen',()=>show('s-end'));
+const finaleOpen=()=>ORDER.every(k=>done.has(k));
+const playFinale=()=>{if(!finaleOpen()){show('s-map');setTimeout(()=>$('#cards').scrollIntoView({behavior:'smooth',block:'center'}),100);return}cutscene('Finale','Who is ECHO?',FINALE,'listen',()=>show('s-end'))};
 $('#cast').innerHTML=['aira','atok','echo','ben','maya','kofi'].map(k=>`<div>${PEOPLE[k].svg()}${PEOPLE[k].name.split(' · ')[0]}</div>`).join('');
 document.addEventListener('pointerdown',()=>Sound.init(),{once:true});
 $('#musicBtn').onclick=()=>Sound.toggle('music');
@@ -1747,7 +1749,7 @@ function renderMap(){
  $('#cards').innerHTML=ORDER.map(k=>`<button class="card ${done.has(k)?'done':''}" data-id="${k}"><div class="th">${M[k].svg()}</div><div><b>${M[k].name}</b><small>${M[k].nick}</small><span class="st">${done.has(k)?'✔ Memory restored':'● Waiting for you'}</span></div></button>`).join('');
  $('#bonuscards').innerHTML=EXTRA.map(k=>`<button class="card ${done.has(k)?'done':''}" data-id="${k}"><div class="th">${M[k].svg()}</div><div><span class="wtag">${{moon:'🌕 MOON',mars:'🔴 MARS',deep:'🌌 DEEP SPACE'}[M[k].world]}</span><b>${M[k].short}</b><small>${M[k].nick}</small><span class="st">${done.has(k)?'✔ Memory restored':'● Waiting for you'}</span></div></button>`).join('');
  document.querySelectorAll('.card').forEach(c=>c.onclick=()=>openMission(c.dataset.id));
- $('#finale').classList.remove('hidden');$('#finale').innerHTML=`📡 Finale: Who is ECHO?<small>${nd(ORDER)<ORDER.length?`${nd(ORDER)}/${ORDER.length} story explorers · best saved for last!`:'All story explorers remembered!'}</small>`;
+ $('#finale').classList.remove('hidden');{const fo=nd(ORDER)===ORDER.length;$('#finale').classList.toggle('locked',!fo);$('#finale').innerHTML=fo?'📡 Finale: Who is ECHO?<small>Unlocked: all 4 story explorers remembered!</small>':`🔒 Finale: Who is ECHO?<small>Finish all 4 story explorers to unlock (${nd(ORDER)}/${ORDER.length})</small>`}
  $('#leftbehind').innerHTML=['moon','mars','deep'].map(w=>`<div class="world"><h3>${{moon:'🌕 On the Moon',mars:'🔴 On Mars',deep:'🌌 Out in deep space'}[w]}</h3><div class="lb">${LEFT[w].map((x,i)=>`<button data-w="${w}" data-i="${i}" class="${x[3]?'play':''} ${x[4]||''}">${x[0]} ${x[1]}${x[3]?' ▶':''}</button>`).join('')}</div></div>`).join('');
  document.querySelectorAll('.lb button').forEach(b=>b.onclick=()=>{const x=LEFT[b.dataset.w][+b.dataset.i],box=$('#lbinfo');
   document.querySelectorAll('.lb button').forEach(o=>o.classList.toggle('on',o===b));
@@ -2607,12 +2609,12 @@ ${cur.journey?`<h2 class="real-title" id="ln-journey">🚀 How I got there</h2><
  el.querySelector('#qskip').onclick=()=>{if(qi<Q.length-1){qi++;ask()}else finish()};
  function finish(){Sound.sfx('win');Sound.speak('Memory restored! '+(GLITCH[curId]||cur.bye),curId);
   done.add(curId);save();const all=ORDER.every(k=>done.has(k)),bk=el.querySelector('#back'),bonus=EXTRA.includes(curId);
-  const nextB=EXTRA.find(k=>!done.has(k));
+  const nextB=EXTRA.find(k=>!done.has(k)),nextS=ORDER.find(k=>!done.has(k));
   const b2=el.querySelector('#back2');
   if(bonus){bk.textContent='Back to the map ▶';bk.onclick=()=>show('s-map');
-   if(nextB){b2.textContent=`Next bonus: ${M[nextB].short} ▶`;b2.onclick=()=>openMission(nextB)}else{b2.textContent=all?'📡 Finale: Who is ECHO?':'📡 Jump to the finale';b2.onclick=()=>playFinale()}}
+   if(nextB){b2.textContent=`Next bonus: ${M[nextB].short} ▶`;b2.onclick=()=>openMission(nextB)}else if(all){b2.textContent='📡 Finale: Who is ECHO?';b2.onclick=()=>playFinale()}else{b2.textContent=`Next story explorer: ${M[nextS].short} ▶`;b2.onclick=()=>openMission(nextS)}}
   else{bk.textContent=all?'📡 Finale: Who is ECHO?':'Back to the map ▶';bk.onclick=()=>all?playFinale():show('s-map');
-  b2.textContent=all?'Back to the map':'📡 Jump to the finale';b2.onclick=()=>all?show('s-map'):playFinale();}
+  if(all){b2.textContent='Back to the map';b2.onclick=()=>show('s-map')}else{b2.textContent=`Next story explorer: ${M[nextS].short} ▶`;b2.onclick=()=>openMission(nextS)}}
   el.querySelector('#qskip').parentElement.classList.add('hidden');
   badge.classList.remove('hidden');setTimeout(()=>badge.scrollIntoView({behavior:'smooth',block:'center'}),300)}
  ask();
