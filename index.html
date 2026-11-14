@@ -140,8 +140,13 @@ p{line-height:1.5}
 #s-title h1{font-size:clamp(2.4rem,7vw,4.4rem);line-height:1.05;background:linear-gradient(180deg,#fff,#b9c4ff);-webkit-background-clip:text;background-clip:text;color:transparent}
 #s-title .sub{font-size:clamp(1.1rem,3vw,1.5rem);color:var(--accent)}
 .trio{display:flex;justify-content:center;gap:2vw;margin:28px auto;max-width:760px}
-.trio>div{flex:1;opacity:.92;animation:bob 4s ease-in-out infinite}
-.trio>div:nth-child(2){animation-delay:-1.3s}.trio>div:nth-child(3){animation-delay:-2.6s}
+.trio>div{flex:1;opacity:.92;display:flex;flex-direction:column;justify-content:flex-start}
+.trio>div>svg{aspect-ratio:300/190;width:100%;height:auto}
+.trio>div>svg{animation:bob 4s ease-in-out infinite}
+.trio>div:nth-child(2)>svg{animation-delay:-1.3s}.trio>div:nth-child(3)>svg{animation-delay:-2.6s}
+.tname{display:block;text-align:center;margin-top:6px;line-height:1.25;min-height:2.6em}
+.tname b{display:block;font-size:clamp(.78rem,1.8vw,1.02rem);color:var(--ink)}
+.tname small{display:block;font-size:clamp(.66rem,1.4vw,.8rem);color:var(--muted)}
 @keyframes bob{50%{transform:translateY(-6px)}}
 .flow{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:10px 0 26px}
 .flow span{border:1px solid var(--line);border-radius:999px;padding:.3em .9em;color:var(--muted);font-size:.95rem}
@@ -1729,7 +1734,8 @@ const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 })();
 
 /* ---------- Title + Map ---------- */
-$('#trio').innerHTML=$('#trio2').innerHTML=ORDER.map(k=>`<div>${M[k].svg()}</div>`).join('');
+const TRIO_NAMES={sv1:['Surveyor 1','🌕 Moon · 1966'],lrv:['Lunar Rover','🌕 Moon · 1971'],opp:['Spirit & Opportunity','🔴 Mars · 2004'],insight:['Phoenix & InSight','🔴 Mars · 2008 & 2018']};
+$('#trio').innerHTML=$('#trio2').innerHTML=ORDER.map(k=>`<div>${M[k].svg()}<span class="tname"><b>${TRIO_NAMES[k][0]}</b><small>${TRIO_NAMES[k][1]}</small></span></div>`).join('');
 $('#start').onclick=()=>{Sound.init();cutscene('Prologue','The Parcel',PROLOGUE,'title',()=>show('s-map'))};
 function paintResume(){const n=[...ORDER,...EXTRA].filter(k=>done.has(k)).length,r=$('#resume');r.classList.toggle('hidden',!n);r.textContent=`🛰️ Continue exploring · ${n} ${n===1?'memory':'memories'} restored`}
 $('#resume').onclick=()=>{Sound.init();show('s-map')};
