@@ -440,6 +440,33 @@ main{padding-bottom:90px}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
 #s-end h1{font-size:clamp(2rem,6vw,3.4rem);color:var(--accent)}
 #s-end p{max-width:620px;margin:10px auto;font-size:1.15rem}
+/* Certificate */
+.cert-wrap{max-width:860px;margin:26px auto 10px}
+.cert-name{display:flex;gap:10px;justify-content:center;align-items:center;flex-wrap:wrap;margin:8px 0 4px}
+.cert-name label{color:var(--muted)}
+.cert-name input{font:inherit;font-size:1.1rem;padding:.6em 1.1em;border-radius:999px;border:2px solid var(--accent);background:rgba(255,255,255,.06);color:var(--ink);width:min(300px,100%)}
+.cert-name input:focus{outline:3px solid #fff;outline-offset:2px}
+.cert{position:relative;text-align:center;color:#2a2238;background:radial-gradient(circle at 50% 0,#fffdf6,#f5e7c8);border:4px solid #d9a640;outline:2px solid #d9a640;outline-offset:-14px;border-radius:20px;padding:34px 30px 24px;margin-top:14px;box-shadow:0 12px 44px rgba(0,0,0,.5);-webkit-print-color-adjust:exact;print-color-adjust:exact;animation:fade .6s}
+.cert .ck{font-family:"Space Mono",monospace;letter-spacing:.3em;font-size:.78rem;color:#8a6a1f;text-transform:uppercase}
+#s-end .cert h2{font-size:clamp(1.6rem,5vw,2.5rem);color:#3b2a6b;margin:.1em 0 .2em}
+#s-end .cert p{color:#4a4060;font-size:1.02rem;margin:.35em auto;max-width:560px}
+.cert .who{display:inline-block;min-width:60%;font-size:clamp(1.7rem,6vw,2.8rem);font-weight:700;color:#141a33;border-bottom:2px solid #d9a640;padding:0 .4em;margin:.1em 0 .2em;overflow-wrap:anywhere}
+.seals{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:16px 0 10px}
+.seal{background:#fff;border:2px solid #ead9a9;border-radius:14px;padding:8px 6px 10px;font-size:.85rem;color:#5a5070;line-height:1.35}
+.seal .mach{max-width:120px;margin:0 auto}
+.seal b{display:block;color:#141a33;font-size:.98rem}
+.seal .ok{color:#178a76;font-weight:700}
+.seal.miss{opacity:.45;filter:grayscale(1)}
+#s-end .cert p.q{font-family:"Space Mono",monospace;color:#1f8a78;font-size:.92rem}
+.sigs{display:flex;justify-content:space-between;gap:14px;margin-top:18px;flex-wrap:wrap}
+.sig{flex:1;min-width:140px;font-size:.8rem;color:#6a6080}
+.sig i{display:block;font-style:normal;font-size:1.25rem;font-weight:600;color:#3b2a6b;padding-bottom:4px;border-bottom:1.5px solid #9a8aa8;margin-bottom:4px}
+.bonusline{display:inline-block;background:#fff;border:2px dashed #c8b3ff;border-radius:999px;padding:.35em 1em;font-size:.95rem;color:#3b2a6b;margin-bottom:4px}
+.cert .fine{font-size:.72rem;color:#8a8098;margin-top:14px}
+.cert .stamp{position:absolute;right:26px;top:26px;width:76px;height:76px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#ffe7a3,#d9a640);display:grid;place-items:center;font-size:2.1rem;box-shadow:0 0 0 4px #fff8e6,0 0 0 7px #d9a640;transform:rotate(-12deg)}
+.cert-hint{text-align:center;color:var(--muted);font-size:.88rem;min-height:1.2em}
+@media(max-width:640px){.seals{grid-template-columns:1fr 1fr}.cert{padding:30px 16px 20px;outline-offset:-10px}.cert .stamp{display:none}.cert .ck{letter-spacing:.12em;font-size:.7rem}.sig{min-width:100%;margin-top:8px}}
+@media print{body *{visibility:hidden}#cert,#cert *{visibility:visible}#cert{position:absolute;left:0;top:0;width:100%;margin:0;box-shadow:none}html,body{background:#fff}}
 </style>
 </head>
 <body>
@@ -542,6 +569,13 @@ main{padding-bottom:90px}
     <p>You landed softly on the Moon, drove across it, raced a dust storm on Mars, dug for ice and listened to a planet tremble. You helped ECHO remember who it was. And sixteen silent explorers, from Eagle on the Moon to Pioneer drifting towards the stars, are waiting to be remembered too.</p>
     <p>Some of these machines will never move again. Others still circle distant worlds or drift out of the solar system. But every rock they touched, every photo they sent, every quake they heard and every planet they found is still teaching us. Now their stories travel on with <b>you</b>.</p>
     <p style="color:var(--teal)" class="mono">"No explorer is forgotten — as long as someone tells their story."</p>
+    <div class="cert-wrap">
+      <h2>🏅 Your Memory Keeper certificate</h2>
+      <div class="cert-name"><label for="certName">Write your name:</label><input id="certName" maxlength="30" placeholder="Your name" autocomplete="off"></div>
+      <div class="cert" id="cert"></div>
+      <div class="row"><button class="btn teal" id="certSave">🖼️ Save as picture</button><button class="btn ghost" id="certPrint">🖨️ Print</button></div>
+      <p class="cert-hint" id="certHint"></p>
+    </div>
     <div class="cast" id="cast"></div>
     <p class="note">Aira, Grandpa, ECHO, Ben, Maya and Kofi are made-up characters. The machines, their missions and their facts are real.</p>
     <div class="row"><button class="btn" data-go="s-map">Back to the map</button><button class="btn ghost" id="reset">Play again from the start</button></div>
@@ -1650,7 +1684,7 @@ try{done=new Set(JSON.parse(localStorage.getItem('silentExplorers')||'[]'))}catc
 function save(){try{localStorage.setItem('silentExplorers',JSON.stringify([...done]))}catch(e){}}
 let stopGame=null;
 function stopAll(){if(stopGame){stopGame();stopGame=null}Sound.stopVoice()}
-function show(id){stopAll();Sound.setMood(id==='s-end'?'end':id==='s-mission'&&cur?(curId==='insight'||curId==='alsep'?'listen':cur.world):'title');document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.id===id));window.scrollTo(0,0);if(id==='s-map')renderMap();if(id==='s-title')paintResume()}
+function show(id){stopAll();Sound.setMood(id==='s-end'?'end':id==='s-mission'&&cur?(curId==='insight'||curId==='alsep'?'listen':cur.world):'title');document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.id===id));window.scrollTo(0,0);if(id==='s-map')renderMap();if(id==='s-title')paintResume();if(id==='s-end'){renderCert();confetti()}}
 document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>show(b.dataset.go));
 const shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
 const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
@@ -1696,6 +1730,72 @@ function renderMap(){
 $('#finale').onclick=()=>playFinale();
 $('#reset').onclick=()=>{if(!confirm('Start over? This clears every memory you have restored.'))return;done.clear();save();show('s-title')};
 $('#toMap').onclick=()=>show('s-map');
+
+/* ---------- Certificate (end screen) ---------- */
+const CERT_SVG={sv1:svgSurveyor,lrv:svgLRV,opp:svgOpp,insight:svgInSight};
+const CERT={sv1:['Surveyor 1','1966 · Moon','Landed softly'],lrv:['Lunar Rover','1971 · Moon','Drove the Moon'],opp:['Opportunity','2004–2018 · Mars','Found water clues'],insight:['InSight','2018–2022 · Mars','Heard marsquakes']};
+let certName='';try{certName=localStorage.getItem('seName')||''}catch(e){}
+const escH=s=>s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function certData(){const n=ORDER.filter(k=>done.has(k)).length,bn=EXTRA.filter(k=>done.has(k)).length,all=n===ORDER.length;
+ return{n,bn,bt:EXTRA.length,all,name:certName.trim()||'Space Explorer',title:all&&bn===EXTRA.length?'Master Memory Keeper':all?'Official Memory Keeper':'Junior Memory Keeper',
+  body:`helped ${n===ORDER.length?'all four':n+' of 4'} story explorers on the Moon and Mars remember who they were, and promised to keep telling their stories.`,
+  date:new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})}}
+function renderCert(){const d=certData();
+ $('#certName').value=certName;$('#certHint').textContent='';
+ $('#cert').innerHTML=`<div class="stamp" aria-hidden="true">${d.title[0]==='M'?'🏆':d.all?'🏅':'⭐'}</div>
+ <div class="ck">Certificate of Remembrance</div><h2>${d.title}</h2><p>This certifies that</p><div class="who" id="certWho">${escH(d.name)}</div><p>${d.body}</p>
+ <div class="seals">${ORDER.map(k=>{const c=CERT[k],ok=done.has(k);return `<div class="seal ${ok?'':'miss'}">${CERT_SVG[k]()}<b>${c[0]}</b>${c[1]}<br><span class="${ok?'ok':''}">${ok?'✔ '+c[2]:'Not visited yet'}</span></div>`}).join('')}</div>
+ <div class="bonusline">🛰️ Bonus explorers remembered: <b>${d.bn} / ${d.bt}</b></div>
+ <p class="q">"No explorer is forgotten — as long as someone tells their story."</p>
+ <div class="sigs"><div class="sig"><i>ECHO-7</i>Guide · story character</div><div class="sig"><i>${d.date}</i>Date</div><div class="sig"><i>Aira</i>Fellow explorer · story character</div></div>
+ <div class="fine">The Silent Explorers · NASA Space Apps 2026 project. A just-for-fun certificate from the game, not an official NASA document.</div>`}
+$('#certName').oninput=e=>{certName=e.target.value;try{localStorage.setItem('seName',certName)}catch(_){}$('#certWho').textContent=certName.trim()||'Space Explorer'};
+$('#certPrint').onclick=()=>{try{window.print()}catch(e){$('#certHint').textContent='Printing is blocked here — try 🖼️ Save as picture instead.'}};
+$('#certSave').onclick=async()=>{const b=$('#certSave');b.disabled=true;b.textContent='⏳ Making your picture…';
+ const hint=$('#certHint'),fname=(certName.trim()||'explorer').replace(/[^\w -]+/g,'').trim().replace(/\s+/g,'-').slice(0,30)||'explorer';
+ let url;try{url=await certPNG()}catch(e){hint.textContent='Sorry, the picture could not be made. Try 🖨️ Print or take a screenshot!';b.disabled=false;b.textContent='🖼️ Save as picture';return}
+ const showPic=()=>{const lb=$('#lightbox');lb.querySelector('img').src=url;lb.querySelector('img').alt='Your Memory Keeper certificate';lb.classList.remove('hidden');hint.textContent='Right-click (or press and hold) the picture and choose Save.'};
+ let dl=null;try{dl=window.claude&&await window.claude.use('downloads')}catch(e){}
+ if(dl){try{const blob=await (await fetch(url)).blob();await dl.save({filename:`memory-keeper-certificate-${fname}.png`,data:blob});hint.textContent='✔ Certificate saved!';Sound.sfx('win')}
+  catch(e){if(e&&e.code==='declined')hint.textContent='No problem — you can save it any time.';else if(e&&e.code==='rate_limited')hint.textContent='One moment — try again in a few seconds.';else showPic()}}
+ else showPic();
+ b.disabled=false;b.textContent='🖼️ Save as picture'};
+function svgImg(str){const defs=document.querySelector('svg defs').outerHTML;
+ const s=str.replace(/<svg([^>]*)>/,`<svg xmlns="http://www.w3.org/2000/svg" width="300" height="190"$1>${defs}`);
+ return new Promise((ok,no)=>{const i=new Image();i.onload=()=>ok(i);i.onerror=no;i.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(s)})}
+async function certPNG(){
+ const d=certData(),W=1600,H=1130,c=document.createElement('canvas');c.width=W;c.height=H;const g=c.getContext('2d');
+ try{await Promise.all(['700 80px Fredoka','400 30px Fredoka','600 30px Fredoka','400 24px "Space Mono"'].map(f=>document.fonts.load(f)))}catch(e){}
+ const imgs=await Promise.all(ORDER.map(k=>svgImg(CERT_SVG[k]())));
+ const gr=g.createRadialGradient(W/2,0,100,W/2,0,H*1.2);gr.addColorStop(0,'#fffdf6');gr.addColorStop(1,'#f5e7c8');g.fillStyle=gr;g.fillRect(0,0,W,H);
+ g.strokeStyle='#d9a640';g.lineWidth=12;g.strokeRect(24,24,W-48,H-48);g.lineWidth=3;g.strokeRect(46,46,W-92,H-92);
+ g.fillStyle='#d9a640';for(const[x,y]of[[46,46],[W-46,46],[46,H-46],[W-46,H-46]]){g.beginPath();g.arc(x,y,10,0,7);g.fill()}
+ const C=(t,y,font,col)=>{g.font=font;g.fillStyle=col;g.textAlign='center';g.fillText(t,W/2,y)};
+ if('letterSpacing' in g)g.letterSpacing='10px';C('CERTIFICATE OF REMEMBRANCE',130,'700 26px "Space Mono", monospace','#8a6a1f');if('letterSpacing' in g)g.letterSpacing='0px';
+ C(d.title,215,'700 76px Fredoka, sans-serif','#3b2a6b');
+ C('This certifies that',285,'400 30px Fredoka, sans-serif','#4a4060');
+ let fs=92;g.font=`700 ${fs}px Fredoka, sans-serif`;while(g.measureText(d.name).width>1060&&fs>40){fs-=4;g.font=`700 ${fs}px Fredoka, sans-serif`}
+ C(d.name,385,g.font,'#141a33');g.strokeStyle='#d9a640';g.lineWidth=3;g.beginPath();g.moveTo(330,412);g.lineTo(W-330,412);g.stroke();
+ g.font='400 30px Fredoka, sans-serif';g.fillStyle='#4a4060';const words=d.body.split(' ');let line='',ly=470;
+ for(const w of words){const t=line?line+' '+w:w;if(g.measureText(t).width>1080&&line){g.fillText(line,W/2,ly);ly+=40;line=w}else line=t}g.fillText(line,W/2,ly);
+ ORDER.forEach((k,i)=>{const x=140+i*340,y=555,ok=done.has(k),ci=CERT[k];
+  g.save();if(!ok){g.globalAlpha=.4;if('filter' in g)g.filter='grayscale(1)'}
+  g.fillStyle='#fff';g.strokeStyle='#ead9a9';g.lineWidth=3;g.beginPath();g.roundRect?g.roundRect(x,y,300,270,22):g.rect(x,y,300,270);g.fill();g.stroke();
+  g.drawImage(imgs[i],x+25,y+10,250,158);
+  g.textAlign='center';g.font='700 30px Fredoka, sans-serif';g.fillStyle='#141a33';g.fillText(ci[0],x+150,y+198);
+  g.font='400 22px Fredoka, sans-serif';g.fillStyle='#5a5070';g.fillText(ci[1],x+150,y+228);
+  g.font='600 22px Fredoka, sans-serif';g.fillStyle=ok?'#178a76':'#5a5070';g.fillText(ok?'✔ '+ci[2]:'Not visited yet',x+150,y+256);g.restore()});
+ C(`🛰️ Bonus explorers remembered: ${d.bn} / ${d.bt}`,872,'600 28px Fredoka, sans-serif','#3b2a6b');
+ C('"No explorer is forgotten — as long as someone tells their story."',922,'400 24px "Space Mono", monospace','#1f8a78');
+ [['ECHO-7','Guide · story character',340],[d.date,'Date',800],['Aira','Fellow explorer · story character',1260]].forEach(([a,b,x])=>{
+  g.textAlign='center';g.font='600 36px Fredoka, sans-serif';g.fillStyle='#3b2a6b';g.fillText(a,x,985);
+  g.strokeStyle='#9a8aa8';g.lineWidth=2;g.beginPath();g.moveTo(x-170,1003);g.lineTo(x+170,1003);g.stroke();
+  g.font='400 20px Fredoka, sans-serif';g.fillStyle='#6a6080';g.fillText(b,x,1030)});
+ C('The Silent Explorers · NASA Space Apps 2026 project. A just-for-fun certificate from the game, not an official NASA document.',1068,'400 18px Fredoka, sans-serif','#8a8098');
+ g.save();g.translate(1430,170);g.rotate(-.21);g.fillStyle='#fff8e6';g.beginPath();g.arc(0,0,84,0,7);g.fill();
+ const sg=g.createRadialGradient(-20,-24,10,0,0,76);sg.addColorStop(0,'#ffe7a3');sg.addColorStop(1,'#d9a640');g.fillStyle=sg;g.strokeStyle='#d9a640';g.lineWidth=5;g.beginPath();g.arc(0,0,74,0,7);g.fill();g.beginPath();g.arc(0,0,86,0,7);g.stroke();
+ g.font='72px sans-serif';g.textAlign='center';g.textBaseline='middle';g.fillText(d.title[0]==='M'?'🏆':d.all?'🏅':'⭐',0,4);g.restore();
+ return c.toDataURL('image/png')}
 
 /* ---------- Mission flow ---------- */
 let cur=null,curId=null;
