@@ -438,8 +438,11 @@ main{padding-bottom:90px}
 .jump a.goal{color:#141a33;background:var(--accent);font-weight:600}
 [id^="ln-"]{scroll-margin-top:70px}
 @media(max-width:640px){.jump{flex-wrap:nowrap;justify-content:flex-start;overflow-x:auto;border-radius:16px;scrollbar-width:none;margin-left:-4px;margin-right:-4px}.jump::-webkit-scrollbar{display:none}.jump a{white-space:nowrap;flex:none}}
-.resume{display:block;margin:14px auto 0;font:inherit;font-size:1rem;color:var(--teal);background:none;border:1px solid rgba(94,230,208,.5);border-radius:999px;padding:.5em 1.2em;cursor:pointer}
-.resume:hover{background:rgba(94,230,208,.1)}
+.choice{max-width:600px;margin:4px auto 0;padding:16px 18px 10px;border-radius:22px;background:var(--panel);border:1px solid var(--line)}
+.choice-msg{font-size:1.15rem;margin:0 0 4px}
+.choice-msg b{color:var(--accent)}
+.choice .row{margin:10px 0 6px}
+.choice-tip{color:var(--muted);font-size:.88rem;margin:4px 0 0}
 #lightbox .lbx{position:absolute;top:14px;right:14px;font:inherit;font-size:1.1rem;color:var(--ink);background:rgba(18,24,48,.9);border:1px solid var(--line);border-radius:999px;padding:.4em .9em;cursor:pointer}
 @media(max-width:560px){.sound button{font-size:.8rem;padding:.35em .7em}}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
@@ -514,7 +517,11 @@ main{padding-bottom:90px}
     <div class="trio" id="trio"></div>
     <div class="flow"><span>🔦 Discover</span><span>💬 Story</span><span>🎮 Play</span><span>🧠 Learn</span></div>
     <button class="btn big" id="start">Begin the journey ▶</button>
-    <button class="resume hidden" id="resume"></button>
+    <div class="choice hidden" id="choice">
+      <p class="choice-msg" id="choiceMsg"></p>
+      <div class="row"><button class="btn big teal" id="resume">▶ Continue</button><button class="btn big ghost" id="fresh">🔄 Start fresh</button></div>
+      <p class="choice-tip">Continue keeps your progress. Start fresh clears it so you (or a friend) can begin from zero.</p>
+    </div>
     <p class="hint" style="margin-top:22px">Out on the Moon, on Mars and far out in deep space, sixteen NASA machines sit silent. Their missions ended — but their memories didn't.</p>
     <p class="factcheck">📖 <b>Fact or story?</b> The machines, missions and facts in this game are <b>real</b>. <br>When a machine talks, look for <span class="chip fact">🛰 NASA fact</span> (from NASA's NSSDCA spacecraft catalogue and mission records) or <span class="chip story">💬 Story voice</span> (the machine “talking” in an imagined voice). Aira, Grandpa, ECHO and the people in the memory recordings are <b>made-up story characters</b> — look for the “story character” tag.</p>
   </section>
@@ -607,7 +614,7 @@ main{padding-bottom:90px}
     </div>
     <div class="cast" id="cast"></div>
     <p class="note">Aira, Grandpa, ECHO, Ben, Maya and Kofi are made-up characters. The machines, their missions and their facts are real.</p>
-    <div class="row"><button class="btn" data-go="s-map">Back to the map</button><button class="btn ghost" id="reset">Play again from the start</button></div>
+    <div class="row"><button class="btn" data-go="s-map">Back to the map</button><button class="btn ghost" id="reset">🔄 Start fresh</button></div>
   </section>
 
   <!-- CERTIFICATE -->
@@ -1737,8 +1744,12 @@ const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 const TRIO_NAMES={sv1:['Surveyor 1','🌕 Moon · 1966'],lrv:['Lunar Rover','🌕 Moon · 1971'],opp:['Spirit & Opportunity','🔴 Mars · 2004'],insight:['Phoenix & InSight','🔴 Mars · 2008 & 2018']};
 $('#trio').innerHTML=$('#trio2').innerHTML=ORDER.map(k=>`<div>${M[k].svg()}<span class="tname"><b>${TRIO_NAMES[k][0]}</b><small>${TRIO_NAMES[k][1]}</small></span></div>`).join('');
 $('#start').onclick=()=>{Sound.init();cutscene('Prologue','The Parcel',PROLOGUE,'title',()=>show('s-map'))};
-function paintResume(){const n=[...ORDER,...EXTRA].filter(k=>done.has(k)).length,r=$('#resume');r.classList.toggle('hidden',!n);r.textContent=`🛰️ Continue exploring · ${n} ${n===1?'memory':'memories'} restored`}
+function paintResume(){const n=[...ORDER,...EXTRA].filter(k=>done.has(k)).length;
+ $('#choice').classList.toggle('hidden',!n);$('#start').classList.toggle('hidden',!!n);
+ $('#choiceMsg').innerHTML=`👋 Welcome back, explorer! You have restored <b>${n} ${n===1?'memory':'memories'}</b>.`}
+function clearProgress(){done.clear();save();certName='';try{localStorage.removeItem('seName')}catch(e){}}
 $('#resume').onclick=()=>{Sound.init();show('s-map')};
+$('#fresh').onclick=()=>{if(!confirm('Start fresh? This clears every memory you have restored.'))return;clearProgress();paintResume();$('#start').click()};
 paintResume();
 const finaleOpen=()=>ORDER.every(k=>done.has(k));
 const playFinale=()=>{if(!finaleOpen()){show('s-map');setTimeout(()=>$('#cards').scrollIntoView({behavior:'smooth',block:'center'}),100);return}cutscene('Finale','Who is ECHO?',FINALE,'listen',()=>show('s-end'))};
@@ -1767,7 +1778,7 @@ function renderMap(){
 }
 $('#finale').onclick=()=>playFinale();
 $('#certBtn').onclick=()=>{Sound.init();show('s-cert')};
-$('#reset').onclick=()=>{if(!confirm('Start over? This clears every memory you have restored.'))return;done.clear();save();show('s-title')};
+$('#reset').onclick=()=>{if(!confirm('Start fresh? This clears every memory you have restored.'))return;clearProgress();show('s-title')};
 $('#toMap').onclick=()=>show('s-map');
 
 /* ---------- Certificate (end screen) ---------- */
