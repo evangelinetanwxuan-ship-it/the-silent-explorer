@@ -476,7 +476,11 @@ main{padding-bottom:90px}
 .req small{display:block;color:var(--muted);line-height:1.5}
 .req .stars{font-size:1.2rem;letter-spacing:.1em}
 @media(max-width:560px){.req{grid-template-columns:1fr}}
-.certreq{text-align:center;color:var(--muted);font-size:.95rem;margin:-4px 0 0}
+.certreq{text-align:center;color:var(--muted);font-size:.95rem;margin:14px 0 0}
+.btn.certbtn{background:linear-gradient(180deg,#ffe08a,#f2b84b);box-shadow:0 4px 0 #b9852a}
+.btn.certbtn:active{box-shadow:0 1px 0 #b9852a}
+.btn.certbtn.locked{background:rgba(255,209,102,.1);color:var(--accent);border:2px dashed var(--accent);box-shadow:none}
+#s-cert .cert-wrap{margin-top:6px}
 @media(max-width:640px){.seals{grid-template-columns:1fr 1fr}.cert{padding:30px 16px 20px;outline-offset:-10px}.cert .stamp{display:none}.cert .ck{letter-spacing:.12em;font-size:.7rem}.sig{min-width:100%;margin-top:8px}}
 @media print{body *{visibility:hidden}#cert,#cert *{visibility:visible}#cert{position:absolute;left:0;top:0;width:100%;margin:0;box-shadow:none}html,body{background:#fff}}
 </style>
@@ -551,7 +555,7 @@ main{padding-bottom:90px}
     <div class="photo hidden" id="lbinfo" style="padding:14px 16px"></div>
     <p class="datanote">🛰️ <b>Find any spacecraft yourself:</b> the <a href="https://nssdc.gsfc.nasa.gov/" target="_blank" rel="noopener">NASA Space Science Data Coordinated Archive (NSSDCA)</a> is NASA's public catalogue of everything sent into space: its mission details, where it ended up and whether it still works.<br><small>NASA does not endorse any non-U.S. Government entity and is not responsible for information contained on non-U.S. Government websites.</small></p>
     <p class="certreq" id="certReq"></p>
-    <div class="row"><button class="btn teal big hidden" id="finale">📡 Finale: Who is ECHO?</button></div>
+    <div class="row"><button class="btn teal big hidden" id="finale">📡 Finale: Who is ECHO?</button><button class="btn big certbtn locked" id="certBtn">🔒 My certificate</button></div>
   </section>
 
   <!-- MISSION -->
@@ -595,6 +599,12 @@ main{padding-bottom:90px}
     <div class="cast" id="cast"></div>
     <p class="note">Aira, Grandpa, ECHO, Ben, Maya and Kofi are made-up characters. The machines, their missions and their facts are real.</p>
     <div class="row"><button class="btn" data-go="s-map">Back to the map</button><button class="btn ghost" id="reset">Play again from the start</button></div>
+  </section>
+
+  <!-- CERTIFICATE -->
+  <section id="s-cert" class="screen">
+    <div class="topbar"><button class="btn ghost" data-go="s-map">◀ Map</button></div>
+    <div id="certHome"></div>
   </section>
 </main>
 
@@ -1700,7 +1710,7 @@ try{done=new Set(JSON.parse(localStorage.getItem('silentExplorers')||'[]'))}catc
 function save(){try{localStorage.setItem('silentExplorers',JSON.stringify([...done]))}catch(e){}}
 let stopGame=null;
 function stopAll(){if(stopGame){stopGame();stopGame=null}Sound.stopVoice()}
-function show(id){stopAll();Sound.setMood(id==='s-end'?'end':id==='s-mission'&&cur?(curId==='insight'||curId==='alsep'?'listen':cur.world):'title');document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.id===id));window.scrollTo(0,0);if(id==='s-map')renderMap();if(id==='s-title')paintResume();if(id==='s-end'){renderCert();confetti()}}
+function show(id){stopAll();Sound.setMood(id==='s-end'?'end':id==='s-mission'&&cur?(curId==='insight'||curId==='alsep'?'listen':cur.world):'title');document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.id===id));window.scrollTo(0,0);if(id==='s-map')renderMap();if(id==='s-title')paintResume();if(id==='s-end'){$('#cast').before($('.cert-wrap'));renderCert();confetti()}if(id==='s-cert'){$('#certHome').append($('.cert-wrap'));renderCert();if(certData().unlocked)confetti()}}
 document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>show(b.dataset.go));
 const shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
 const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
@@ -1729,7 +1739,7 @@ Sound.paint();
 document.querySelectorAll('.pin').forEach(p=>p.onclick=()=>openMission(p.dataset.id));
 function renderMap(){
  const nd=k=>k.filter(x=>done.has(x)).length;$('#progress').textContent=`Story explorers: ${nd(ORDER)} / ${ORDER.length} · Bonus: ${nd(EXTRA)} / ${EXTRA.length}`;
- {const ok=nd(ORDER)===ORDER.length&&nd(EXTRA)>=CERT_BONUS;$('#certReq').innerHTML=ok?'🏅 <b>Certificate unlocked!</b> Play the finale to get it.':`🔒 <b>Certificate:</b> finish all ${ORDER.length} story explorers (${nd(ORDER)}/${ORDER.length}) and ${CERT_BONUS} bonus explorers (${Math.min(nd(EXTRA),CERT_BONUS)}/${CERT_BONUS}) to unlock it.`}
+ {const ok=nd(ORDER)===ORDER.length&&nd(EXTRA)>=CERT_BONUS;const cb=$('#certBtn');cb.classList.toggle('locked',!ok);cb.textContent=ok?'🏅 Get my certificate!':'🔒 My certificate';$('#certReq').innerHTML=ok?'🏅 <b>Certificate unlocked!</b> Tap the gold button below to get it.':`🔒 <b>Certificate:</b> finish all ${ORDER.length} story explorers (${nd(ORDER)}/${ORDER.length}) and ${CERT_BONUS} bonus explorers (${Math.min(nd(EXTRA),CERT_BONUS)}/${CERT_BONUS}) to unlock it.`}
  document.querySelectorAll('.pin').forEach(p=>p.classList.toggle('done',done.has(p.dataset.id)));
  $('#cards').innerHTML=ORDER.map(k=>`<button class="card ${done.has(k)?'done':''}" data-id="${k}"><div class="th">${M[k].svg()}</div><div><b>${M[k].name}</b><small>${M[k].nick}</small><span class="st">${done.has(k)?'✔ Memory restored':'● Waiting for you'}</span></div></button>`).join('');
  $('#bonuscards').innerHTML=EXTRA.map(k=>`<button class="card ${done.has(k)?'done':''}" data-id="${k}"><div class="th">${M[k].svg()}</div><div><span class="wtag">${{moon:'🌕 MOON',mars:'🔴 MARS',deep:'🌌 DEEP SPACE'}[M[k].world]}</span><b>${M[k].short}</b><small>${M[k].nick}</small><span class="st">${done.has(k)?'✔ Memory restored':'● Waiting for you'}</span></div></button>`).join('');
@@ -1745,6 +1755,7 @@ function renderMap(){
   box.scrollIntoView({behavior:'smooth',block:'nearest'})});
 }
 $('#finale').onclick=()=>playFinale();
+$('#certBtn').onclick=()=>{Sound.init();show('s-cert')};
 $('#reset').onclick=()=>{if(!confirm('Start over? This clears every memory you have restored.'))return;done.clear();save();show('s-title')};
 $('#toMap').onclick=()=>show('s-map');
 
