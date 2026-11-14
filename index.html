@@ -465,6 +465,18 @@ main{padding-bottom:90px}
 .cert .fine{font-size:.72rem;color:#8a8098;margin-top:14px}
 .cert .stamp{position:absolute;right:26px;top:26px;width:76px;height:76px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#ffe7a3,#d9a640);display:grid;place-items:center;font-size:2.1rem;box-shadow:0 0 0 4px #fff8e6,0 0 0 7px #d9a640;transform:rotate(-12deg)}
 .cert-hint{text-align:center;color:var(--muted);font-size:.88rem;min-height:1.2em}
+.cert-lock{max-width:640px;margin:14px auto 0;text-align:center;background:var(--panel);border:2px dashed var(--accent);border-radius:22px;padding:20px 18px}
+.cert-lock .big{font-size:2.6rem;line-height:1}
+.cert-lock h3{color:var(--accent);margin:.3em 0}
+.cert-lock p{color:var(--muted);margin:.4em auto;max-width:520px}
+.req{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0 6px;text-align:left}
+.req>div{background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:14px;padding:10px 12px}
+.req>div.ok{border-color:var(--teal);background:rgba(94,230,208,.1)}
+.req b{display:block;margin-bottom:4px}
+.req small{display:block;color:var(--muted);line-height:1.5}
+.req .stars{font-size:1.2rem;letter-spacing:.1em}
+@media(max-width:560px){.req{grid-template-columns:1fr}}
+.certreq{text-align:center;color:var(--muted);font-size:.95rem;margin:-4px 0 0}
 @media(max-width:640px){.seals{grid-template-columns:1fr 1fr}.cert{padding:30px 16px 20px;outline-offset:-10px}.cert .stamp{display:none}.cert .ck{letter-spacing:.12em;font-size:.7rem}.sig{min-width:100%;margin-top:8px}}
 @media print{body *{visibility:hidden}#cert,#cert *{visibility:visible}#cert{position:absolute;left:0;top:0;width:100%;margin:0;box-shadow:none}html,body{background:#fff}}
 </style>
@@ -538,6 +550,7 @@ main{padding-bottom:90px}
     <div class="worlds" id="leftbehind"></div>
     <div class="photo hidden" id="lbinfo" style="padding:14px 16px"></div>
     <p class="datanote">🛰️ <b>Find any spacecraft yourself:</b> the <a href="https://nssdc.gsfc.nasa.gov/" target="_blank" rel="noopener">NASA Space Science Data Coordinated Archive (NSSDCA)</a> is NASA's public catalogue of everything sent into space: its mission details, where it ended up and whether it still works.<br><small>NASA does not endorse any non-U.S. Government entity and is not responsible for information contained on non-U.S. Government websites.</small></p>
+    <p class="certreq" id="certReq"></p>
     <div class="row"><button class="btn teal big hidden" id="finale">📡 Finale: Who is ECHO?</button></div>
   </section>
 
@@ -571,10 +584,13 @@ main{padding-bottom:90px}
     <p style="color:var(--teal)" class="mono">"No explorer is forgotten — as long as someone tells their story."</p>
     <div class="cert-wrap">
       <h2>🏅 Your Memory Keeper certificate</h2>
+      <div class="cert-lock hidden" id="certLock"></div>
+      <div id="certBody">
       <div class="cert-name"><label for="certName">Write your name:</label><input id="certName" maxlength="30" placeholder="Your name" autocomplete="off"></div>
       <div class="cert" id="cert"></div>
       <div class="row"><button class="btn teal" id="certSave">🖼️ Save as picture</button><button class="btn ghost" id="certPrint">🖨️ Print</button></div>
       <p class="cert-hint" id="certHint"></p>
+      </div>
     </div>
     <div class="cast" id="cast"></div>
     <p class="note">Aira, Grandpa, ECHO, Ben, Maya and Kofi are made-up characters. The machines, their missions and their facts are real.</p>
@@ -1713,6 +1729,7 @@ Sound.paint();
 document.querySelectorAll('.pin').forEach(p=>p.onclick=()=>openMission(p.dataset.id));
 function renderMap(){
  const nd=k=>k.filter(x=>done.has(x)).length;$('#progress').textContent=`Story explorers: ${nd(ORDER)} / ${ORDER.length} · Bonus: ${nd(EXTRA)} / ${EXTRA.length}`;
+ {const ok=nd(ORDER)===ORDER.length&&nd(EXTRA)>=CERT_BONUS;$('#certReq').innerHTML=ok?'🏅 <b>Certificate unlocked!</b> Play the finale to get it.':`🔒 <b>Certificate:</b> finish all ${ORDER.length} story explorers (${nd(ORDER)}/${ORDER.length}) and ${CERT_BONUS} bonus explorers (${Math.min(nd(EXTRA),CERT_BONUS)}/${CERT_BONUS}) to unlock it.`}
  document.querySelectorAll('.pin').forEach(p=>p.classList.toggle('done',done.has(p.dataset.id)));
  $('#cards').innerHTML=ORDER.map(k=>`<button class="card ${done.has(k)?'done':''}" data-id="${k}"><div class="th">${M[k].svg()}</div><div><b>${M[k].name}</b><small>${M[k].nick}</small><span class="st">${done.has(k)?'✔ Memory restored':'● Waiting for you'}</span></div></button>`).join('');
  $('#bonuscards').innerHTML=EXTRA.map(k=>`<button class="card ${done.has(k)?'done':''}" data-id="${k}"><div class="th">${M[k].svg()}</div><div><span class="wtag">${{moon:'🌕 MOON',mars:'🔴 MARS',deep:'🌌 DEEP SPACE'}[M[k].world]}</span><b>${M[k].short}</b><small>${M[k].nick}</small><span class="st">${done.has(k)?'✔ Memory restored':'● Waiting for you'}</span></div></button>`).join('');
@@ -1736,11 +1753,20 @@ const CERT_SVG={sv1:svgSurveyor,lrv:svgLRV,opp:svgOpp,insight:svgInSight};
 const CERT={sv1:['Surveyor 1','1966 · Moon','Landed softly'],lrv:['Lunar Rover','1971 · Moon','Drove the Moon'],opp:['Opportunity','2004–2018 · Mars','Found water clues'],insight:['InSight','2018–2022 · Mars','Heard marsquakes']};
 let certName='';try{certName=localStorage.getItem('seName')||''}catch(e){}
 const escH=s=>s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-function certData(){const n=ORDER.filter(k=>done.has(k)).length,bn=EXTRA.filter(k=>done.has(k)).length,all=n===ORDER.length;
- return{n,bn,bt:EXTRA.length,all,name:certName.trim()||'Space Explorer',title:all&&bn===EXTRA.length?'Master Memory Keeper':all?'Official Memory Keeper':'Junior Memory Keeper',
-  body:`helped ${n===ORDER.length?'all four':n+' of 4'} story explorers on the Moon and Mars remember who they were, and promised to keep telling their stories.`,
+const CERT_BONUS=3;
+function certData(){const n=ORDER.filter(k=>done.has(k)).length,bn=EXTRA.filter(k=>done.has(k)).length,all=n===ORDER.length,unlocked=all&&bn>=CERT_BONUS;
+ return{n,bn,bt:EXTRA.length,all,unlocked,name:certName.trim()||'Space Explorer',title:all&&bn===EXTRA.length?'Master Memory Keeper':'Official Memory Keeper',
+  body:`helped all four story explorers and ${bn} bonus explorer${bn===1?'':'s'} remember who they were, and promised to keep telling their stories.`,
   date:new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})}}
 function renderCert(){const d=certData();
+ $('#certLock').classList.toggle('hidden',d.unlocked);$('#certBody').classList.toggle('hidden',!d.unlocked);
+ if(!d.unlocked){const bOk=Math.min(d.bn,CERT_BONUS);
+  $('#certLock').innerHTML=`<div class="big">🔒</div><h3>Unlock your Memory Keeper certificate</h3>
+  <p>Restore the memories of <b>all 4 story explorers</b> and <b>at least ${CERT_BONUS} bonus explorers</b> to earn it.</p>
+  <div class="req"><div class="${d.all?'ok':''}"><b>${d.all?'✅':'📖'} Story explorers: ${d.n} / ${ORDER.length}</b><small>${ORDER.map(k=>(done.has(k)?'✔ ':'○ ')+CERT[k][0]).join('<br>')}</small></div>
+  <div class="${d.bn>=CERT_BONUS?'ok':''}"><b>${d.bn>=CERT_BONUS?'✅':'⭐'} Bonus explorers: ${bOk} / ${CERT_BONUS}</b><span class="stars">${'⭐'.repeat(bOk)}${'☆'.repeat(CERT_BONUS-bOk)}</span><small>Pick any ${CERT_BONUS} from the ⭐ Bonus explorers on the map.</small></div></div>
+  <div class="row"><button class="btn" id="certGo">🗺️ Keep exploring</button></div>`;
+  $('#certGo').onclick=()=>show('s-map');return}
  $('#certName').value=certName;$('#certHint').textContent='';
  $('#cert').innerHTML=`<div class="stamp" aria-hidden="true">${d.title[0]==='M'?'🏆':d.all?'🏅':'⭐'}</div>
  <div class="ck">Certificate of Remembrance</div><h2>${d.title}</h2><p>This certifies that</p><div class="who" id="certWho">${escH(d.name)}</div><p>${d.body}</p>
