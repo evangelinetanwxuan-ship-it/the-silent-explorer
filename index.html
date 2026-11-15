@@ -1894,6 +1894,7 @@ M.echosat={secret:true,twins:true,twinNames:['Echo 1','Echo 2'],name:'Echo 1 & 2
  play:{type:'bounce',title:'Bounce a voice across America 📡',need:4,
   intro:'Echo 1 had no radio for messages. Tilt the dish in <b>California</b> and send your message at the shiny balloon, so it bounces down to <b>New Jersey</b>. Wait until <b>both stations can see Echo</b> (it glows green), then send! Deliver <b>4 messages</b>.',
   msgs:['📼 President Eisenhower\'s recorded message bounced all the way to New Jersey!','☎️ A voice made it across the country!','📻 "Testing, testing…" The echo came back loud and clear!','🎉 One more voice carried across the world!'],
+  part:1,title:'Echo 1: Bounce a voice across America 📡',nextLabel:'Part 2: Echo 2 ▶',next:el=>bounce(el,ECHO2PLAY),
   winTitle:'Voices bounced across America! 📡',
   winText:'"I remember… voices bouncing off my shiny skin, all the way across the country." On 12 August 1960, a recorded message from President Eisenhower was bounced off Echo 1 from California to New Jersey.'},
  facts:[['🎈','A giant balloon','Echo 1 was 30.5 m across, wider than a basketball court is long.'],
@@ -1915,6 +1916,12 @@ M.echosat={secret:true,twins:true,twinNames:['Echo 1','Echo 2'],name:'Echo 1 & 2
   {q:'What happened to both Echo satellites in the end?',opts:['They fell back and burned up in the atmosphere','They landed on the Moon','They flew to Mars'],why:'Echo 1 burned up in 1968 and Echo 2 in 1969.'},
   {q:'Which twin was bigger?',opts:['Echo 2, at 41 metres across','Echo 1, at 41 metres across','They were the same size'],why:'Echo 1 was 30.5 m across and Echo 2 was 41 m.'}],
  bye:'We carried voices across the world. Thank you for helping us echo one more time!'};
+const ECHO2PLAY={part:2,title:'Echo 2: Bounce messages to the Soviet Union 📡',need:3,ballR:32,sat:'ECHO 2',fromName:'England',toName:'Soviet Union',next:undefined,nextLabel:undefined,
+ riseMsg:'🛰️ Here comes Echo 2, even bigger and shinier!',
+ intro:'Now it\'s <b>Echo 2</b>, the bigger twin! In 1964, scientists at Jodrell Bank in <b>England</b> bounced signals off Echo 2 to an observatory in the <b>Soviet Union</b>. Wait until it glows green, then send <b>3 messages</b>: a voice, a telegraph message and a picture.',
+ msgs:['🗣️ A voice message reached the Soviet Union!','📠 A telegraph message bounced across!','🖼️ A picture made it all the way!'],
+ winTitle:'Messages across the world! 🌍',
+ winText:'"I remember… carrying messages from England all the way to the Soviet Union." In 1964, this became the first joint space experiment between the USA and the Soviet Union.'};
 Q4.echosat=[
  ["Hi! I'm <b>Echo 1</b>, and this is my bigger twin, <b>Echo 2</b>! 🎈","We were giant shiny balloons that circled the Earth. ECHO was named after us!"],
  ["Our job was to <b>bounce radio signals</b> between places far apart on Earth. 📡","We had no radio for messages. Signals just bounced off our shiny skin, like light off a mirror ball! 🪩"],
@@ -1925,9 +1932,9 @@ const echoOpen=()=>done.has('finale');
 function paintEcho(){['#echoBtn','#echoBtnEnd'].forEach(id=>{const b=$(id);if(b)b.classList.toggle('hidden',!echoOpen())})}
 
 /* Mini-game: aim the dish so a message bounces off Echo 1 to the far station */
-function bounce(el){
- const c=cur.play,NEED=c.need||4,W=900,H=420,CX=450,CY=1120,RE=820,RO=1040,ST=.42;
- el.innerHTML=`<div class="partwrap"><h2 style="margin-top:0">${c.title}</h2></div><p class="lead">${c.intro}</p>
+function bounce(el,lopt){
+ const c=Object.assign({},cur.play,lopt||{}),BR=c.ballR||22,NEED=c.need||4,W=900,H=420,CX=450,CY=1120,RE=820,RO=1040,ST=.42;
+ el.innerHTML=`${c.part?partHead(c.part,c.title):`<div class="partwrap"><h2 style="margin-top:0">${c.title}</h2></div>`}<p class="lead">${c.intro}</p>
  <div class="hud"><span class="mono" id="vis"></span><div class="count" id="cnt"></div></div>
  <div class="gamewrap"><canvas id="bc" width="${W}" height="${H}"></canvas><div class="toast" id="toast"></div><div class="overlay hidden" id="ov"></div></div>
  <div class="pad land"><button data-k="l" aria-label="Tilt the dish left">◀</button><button class="fire" id="send" aria-label="Send a message">📡</button><button data-k="r" aria-label="Tilt the dish right">▶</button></div>
@@ -1950,16 +1957,16 @@ function bounce(el){
  el.querySelector('#send').onclick=send;
  cv.addEventListener('pointerdown',e=>{const r=cv.getBoundingClientRect();aimAt((e.clientX-r.left)*W/r.width,(e.clientY-r.top)*H/r.height)});
  function hud(){const e=E(),a=sees(T,e),b=sees(R,e);cnt.textContent=`✉️ Messages: ${found} / ${NEED}`;
-  vis.textContent=a&&b?'🟢 Both stations can see Echo!':a?'🟡 Only California can see Echo':b?'🟡 Only New Jersey can see Echo':'⚫ Echo is below the horizon'}
+  vis.textContent=a&&b?'🟢 Both stations can see Echo!':a?`🟡 Only ${c.fromName||'California'} can see Echo`:b?`🟡 Only ${c.toName||'New Jersey'} can see Echo`:'⚫ Echo is below the horizon'}
  function step(dt){
   if(keys.l)th=Math.min(Math.PI-.12,th+.025*dt);if(keys.r)th=Math.max(.12,th-.025*dt);
   phi+=.0011*dt;if(phi>.8){phi=-.8;passes++;toast('🛰️ Here comes Echo again, on its next orbit!')}
   if(pulse){for(let s=0;s<3;s++){pulse.x+=pulse.dx*6*dt;pulse.y+=pulse.dy*6*dt;pulse.trail.push([pulse.x,pulse.y]);if(pulse.trail.length>26)pulse.trail.shift();
     const e=E();
-    if(Math.hypot(pulse.x-e.x,pulse.y-e.y)<36){
+    if(Math.hypot(pulse.x-e.x,pulse.y-e.y)<BR+14){
      if(sees(R,e)){found++;missStreak=0;echoFx={x:e.x,y:e.y,t:0,ok:true};Sound.sfx('chime');toast(c.msgs[(found-1)%c.msgs.length]);hud();
-      if(found>=NEED)setTimeout(()=>{if(!over){over=true;cancelAnimationFrame(raf);endOverlay(ov,true,c.winTitle,c.winText,{})}},1600)}
-     else{echoFx={x:e.x,y:e.y,t:0,ok:false};Sound.sfx('buzz');toast('📡 It bounced, but New Jersey can\'t see Echo yet. Wait until it glows green!')}
+      if(found>=NEED)setTimeout(()=>{if(!over){over=true;cancelAnimationFrame(raf);endOverlay(ov,true,c.winTitle,c.winText,typeof c.next==='function'?{nextLabel:c.nextLabel,next:()=>{stopAll();c.next(el)}}:{})}},1600)}
+     else{echoFx={x:e.x,y:e.y,t:0,ok:false};Sound.sfx('buzz');toast(`📡 It bounced, but ${c.toName||'New Jersey'} can't see Echo yet. Wait until it glows green!`)}
      pulse=null;break}
     if(pulse.x<-20||pulse.x>W+20||pulse.y<-20||Math.hypot(pulse.x-CX,pulse.y-CY)<RE){pulse=null;missStreak++;Sound.sfx('buzz');
      toast(missStreak>=3?'💡 Tip: tap right on the balloon to aim straight at it!':'Missed! Tilt the dish towards the shiny balloon.');break}}}
@@ -1975,21 +1982,21 @@ function bounce(el){
   const eg=g.createLinearGradient(0,280,0,H);eg.addColorStop(0,'#2f8f6a');eg.addColorStop(1,'#1c4f86');g.fillStyle=eg;g.beginPath();g.arc(CX,CY,RE,0,7);g.fill();
   // aim line
   const ax=T.x+Math.cos(th)*150,ay=T.y-8-Math.sin(th)*150;g.strokeStyle='rgba(255,209,102,.55)';g.setLineDash([6,6]);g.lineWidth=2;g.beginPath();g.moveTo(T.x,T.y-8);g.lineTo(ax,ay);g.stroke();g.setLineDash([]);
-  dish(T,th,'CALIFORNIA','#ffd166');dish(R,Math.atan2(R.y-E().y,E().x-R.x),'NEW JERSEY','#5ee6d0');
+  dish(T,th,(c.fromName||'California').toUpperCase(),'#ffd166');dish(R,Math.atan2(R.y-E().y,E().x-R.x),(c.toName||'New Jersey').toUpperCase(),'#5ee6d0');
   // Echo
   const e=E(),both=sees(T,e)&&sees(R,e);
-  if(both){g.fillStyle='rgba(94,230,208,.18)';g.beginPath();g.arc(e.x,e.y,34,0,7);g.fill()}
-  const bg=g.createRadialGradient(e.x-8,e.y-8,3,e.x,e.y,22);bg.addColorStop(0,'#fff');bg.addColorStop(.5,'#cfd5df');bg.addColorStop(1,'#6b7483');
-  g.fillStyle=bg;g.beginPath();g.arc(e.x,e.y,22,0,7);g.fill();g.strokeStyle=both?'#5ee6d0':'rgba(255,255,255,.4)';g.lineWidth=2;g.stroke();
-  g.fillStyle='rgba(255,255,255,.8)';g.font='12px "Space Mono"';g.textAlign='center';g.fillText('ECHO 1',e.x,e.y-30);g.textAlign='left';
+  if(both){g.fillStyle='rgba(94,230,208,.18)';g.beginPath();g.arc(e.x,e.y,BR+12,0,7);g.fill()}
+  const bg=g.createRadialGradient(e.x-BR*.36,e.y-BR*.36,3,e.x,e.y,BR);bg.addColorStop(0,'#fff');bg.addColorStop(.5,'#cfd5df');bg.addColorStop(1,'#6b7483');
+  g.fillStyle=bg;g.beginPath();g.arc(e.x,e.y,BR,0,7);g.fill();g.strokeStyle=both?'#5ee6d0':'rgba(255,255,255,.4)';g.lineWidth=2;g.stroke();
+  g.fillStyle='rgba(255,255,255,.8)';g.font='12px "Space Mono"';g.textAlign='center';g.fillText(c.sat||'ECHO 1',e.x,e.y-BR-8);g.textAlign='left';
   // pulse
   if(pulse){g.strokeStyle='#ffd166';g.lineWidth=3;g.beginPath();pulse.trail.forEach(([x,y],i)=>i?g.lineTo(x,y):g.moveTo(x,y));g.stroke();g.fillStyle='#fff';g.beginPath();g.arc(pulse.x,pulse.y,4,0,7);g.fill()}
   // bounce effect
   if(echoFx){const k=echoFx.t/70;g.strokeStyle=echoFx.ok?`rgba(94,230,208,${1-k})`:`rgba(255,138,128,${1-k})`;g.lineWidth=2;
-   for(let i=0;i<3;i++){g.beginPath();g.arc(echoFx.x,echoFx.y,22+k*90+i*14,0,7);g.stroke()}
+   for(let i=0;i<3;i++){g.beginPath();g.arc(echoFx.x,echoFx.y,BR+k*90+i*14,0,7);g.stroke()}
    if(echoFx.ok){g.strokeStyle=`rgba(94,230,208,${1-k})`;g.lineWidth=3;g.beginPath();g.moveTo(echoFx.x,echoFx.y);g.lineTo(R.x,R.y-14);g.stroke()}}}
  function loop(ts){if(over)return;const dt=last?Math.min(3,(ts-last)/16.67):1;last=ts;step(dt);hud();draw();raf=requestAnimationFrame(loop)}
- hud();draw();toast('🛰️ Echo 1 is rising over the horizon…');raf=requestAnimationFrame(loop);
+ hud();draw();toast(c.riseMsg||'🛰️ Echo 1 is rising over the horizon…');raf=requestAnimationFrame(loop);
  stopGame=()=>{over=true;cancelAnimationFrame(raf);removeEventListener('keydown',kd);removeEventListener('keyup',ku)};
 }
 
