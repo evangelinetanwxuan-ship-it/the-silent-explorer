@@ -662,28 +662,6 @@ small{font-size:.875rem}
 .pdots .ok{color:var(--teal);font-weight:600}
 .pnote{margin:4px 0 0;font-size:.9rem;color:var(--muted)}
 .pnote b{color:var(--ink);white-space:nowrap}
-.studio-note{text-align:center;color:var(--muted);font-size:.9rem;margin:0 0 10px}
-.cast-pick{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:10px auto;max-width:1000px}
-.castb{font:inherit;color:var(--ink);background:var(--panel);border:2px solid var(--line);border-radius:16px;padding:8px 12px;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;min-width:120px}
-.castb .av{width:56px;height:56px;display:block}.castb .av svg{width:100%;height:100%}
-.castb small{color:var(--muted);font-size:.85rem}
-.castb.on{border-color:var(--accent);background:rgba(255,209,102,.1)}
-.fxrow{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center;margin:8px auto 14px}
-.fxrow span{color:var(--muted)}
-.fxb{font:inherit;color:var(--muted);background:none;border:1px solid var(--line);border-radius:999px;padding:.4em 1em;cursor:pointer;min-height:40px}
-.fxb.on{color:#141a33;background:var(--teal);border-color:var(--teal);font-weight:600}
-.sprog{text-align:center;color:var(--muted)}.sprog b{color:var(--accent)}
-.sline{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;max-width:900px;margin:10px auto;padding:12px 14px;border-radius:16px;background:var(--panel);border:1px solid var(--line)}
-.sline.has{border-color:rgba(94,230,208,.5)}
-.sline.recording{border-color:var(--bad);box-shadow:0 0 0 3px rgba(255,107,107,.25)}
-.sline .no{font-family:"Space Mono",monospace;color:var(--accent);font-weight:700;padding-top:2px}
-.sline .tx{margin:0;font-size:1.08rem;line-height:1.45}
-.sline .sb{grid-column:2;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.sline .st{color:var(--muted);font-size:.9rem;margin-right:auto}
-.sline.has .st{color:var(--teal)}
-.sline .btn{font-size:.95rem;padding:.5em 1.1em}
-.sline .recb.on{background:var(--bad);color:#fff;box-shadow:0 4px 0 #a63d3d}
-@media (max-width:640px){.castb{min-width:0;flex:1 1 30%;padding:6px}.castb .av{width:44px;height:44px}.sline{grid-template-columns:1fr}.sline .sb{grid-column:1}}
 </style>
 </head>
 <body>
@@ -712,7 +690,6 @@ small{font-size:.875rem}
       <p class="choice-tip">Continue keeps your progress. Start fresh clears it so you (or a friend) can begin from zero.</p>
     </div>
     <p class="hint" style="margin-top:22px">Out on the Moon, on Mars and far out in deep space, 14 NASA explorers sit silent. Some of them are twins, like Spirit and Opportunity. Their missions ended — but their memories didn't.</p>
-    <div class="row"><button class="btn ghost" id="studioBtn">🎙️ Voice studio: record your own voices</button></div>
     <p class="factcheck">📖 <b>Fact or story?</b> The machines, missions and facts in this game are <b>real</b>. <br>When a machine talks, look for <span class="chip fact">🛰 NASA fact</span> (from NASA's NSSDCA spacecraft catalogue and mission records) or <span class="chip story">💬 Story voice</span> (the machine “talking” in an imagined voice). Aira, Grandpa, ECHO and the people in the memory recordings are <b>made-up story characters</b> — look for the “story character” tag.</p>
   </section>
 
@@ -808,18 +785,6 @@ small{font-size:.875rem}
   </section>
 
   <!-- CERTIFICATE -->
-  <!-- VOICE STUDIO -->
-  <section id="s-studio" class="screen">
-    <div class="topbar"><button class="btn ghost" id="studioBack">◀ Title</button></div>
-    <h2 style="text-align:center">🎙️ Voice studio</h2>
-    <p class="lead">Record your own voices for the story characters. Pick a character, press <b>Record</b>, read the line, then press <b>Stop</b>. Your voice then plays in the story instead of the computer voice (keep <b>Voice on</b>).</p>
-    <p class="studio-note">🔒 Recordings are saved on this device and browser only. Nothing is uploaded.</p>
-    <div class="cast-pick" id="studioCast" role="group" aria-label="Choose a character"></div>
-    <div class="fxrow" id="studioFx" role="group" aria-label="Voice effect"></div>
-    <div id="studioBody"></div>
-    <div class="row"><button class="btn ghost" id="studioDelAll">🗑 Delete all recordings for this character</button></div>
-  </section>
-
   <section id="s-cert" class="screen">
     <div class="topbar"><button class="btn ghost" data-go="s-map">◀ Map</button></div>
     <div id="certHome"></div>
@@ -1896,7 +1861,7 @@ const Sound=(()=>{
   phoenix:{pitch:1.15,rate:.95,want:/Moira|Tessa|Google UK English Female|Female/i},ingen:{pitch:1.5,rate:1.1,want:/Samantha|Google US English|Female/i},dawn:{pitch:1.05,rate:.92,want:/Google UK English Female|Serena|Female/i},
   near:{pitch:1.2,rate:1,want:/Alex|Google US English|Male/i},pioneer:{pitch:.75,rate:.85,want:/Daniel|Fred|Male/i},kepler:{pitch:1,rate:.88,want:/Tessa|Moira|Female/i},
   aira:{pitch:1.55,rate:1.05,want:/Samantha|Google US English|Zira|Karen|Female/i},
-  atok:{pitch:.65,rate:.85,want:/Daniel|Google UK English Male|Fred|Male/i,nat:/Ryan|Thomas|Roger|Guy|Christopher|Eric|Davis|Andrew|Brian|Arthur|Oliver/i,natPitch:.85,natRate:.88},
+  atok:{pitch:.9,rate:.86,want:/Google UK English Male|Daniel|Arthur|Microsoft George|Microsoft David|Microsoft Mark|Rishi|Fred|Male/i,nat:/Thomas|Ryan|Roger|Guy|Christopher|Eric|Davis|Andrew|Brian|Arthur|Oliver/i,natPitch:.92,natRate:.86},
   echo:{pitch:.95,rate:.88,want:/Google UK English Female|Moira|Tessa|Serena/i},
   ben:{pitch:1.0,rate:1.08,want:/Alex|Google US English|David|Male/i},
   maya:{pitch:1.15,rate:.98,want:/Karen|Victoria|Google US English|Female/i},
@@ -1911,9 +1876,9 @@ const Sound=(()=>{
  function stopVoice(){stopRec();if(hasTTS)try{speechSynthesis.cancel()}catch(e){}speaking=false;level();document.dispatchEvent(new Event('voiceend'))}
  function speak(text,who,onend){
   if(!on.voice){onend&&onend();return false}
-  const mine=typeof Studio!=='undefined'&&Studio.get(who,text),rec=mine?mine.src:recFor(text,who);
+  const rec=recFor(text,who);
   if(rec){stopRec();if(hasTTS)try{speechSynthesis.cancel()}catch(e){}
-   const a=new Audio(rec);recAudio=a;let fin=false;if(mine&&mine.rate!==1){a.preservesPitch=a.mozPreservesPitch=a.webkitPreservesPitch=false;a.playbackRate=mine.rate}
+   const a=new Audio(rec);recAudio=a;let fin=false;
    const end=()=>{if(fin)return;fin=true;if(recAudio===a)recAudio=null;speaking=false;level();document.dispatchEvent(new Event('voiceend'));onend&&onend()};
    a.onplay=()=>{speaking=true;level();document.dispatchEvent(new Event('voicestart'))};a.onended=a.onerror=end;
    a.play().catch(end);return true}
@@ -1929,7 +1894,7 @@ const Sound=(()=>{
   vb.classList.toggle('off',!on.voice);vb.setAttribute('aria-pressed',on.voice);vb.textContent=on.voice?'🗣️ Voice on':'🗣️ Voice off';
   if(!hasTTS)vb.classList.add('hidden')}
  function toggle(k){on[k]=!on[k];try{localStorage.setItem('seSound',JSON.stringify(on))}catch(e){}if(k==='voice'&&!on.voice)stopVoice();init();level();paint()}
- return {init,hold,setMood,sfx,speak,stopVoice,toggle,paint,get voice(){return on.voice&&(hasTTS||!!window.VOICE_REC||!!window.VOICE_LOCAL)}};
+ return {init,hold,setMood,sfx,speak,stopVoice,toggle,paint,get voice(){return on.voice&&(hasTTS||!!window.VOICE_REC)}};
 })();
 
 /* ---------- Helpers ---------- */
@@ -2010,74 +1975,6 @@ $('#trio').innerHTML=$('#trio2').innerHTML=ORDER.map(k=>`<div>${M[k].svg()}<span
  const t=$('#s-title');addEventListener('pointermove',e=>{if(e.pointerType!=='mouse'||!t.classList.contains('active'))return;
   t.style.setProperty('--px',(e.clientX/innerWidth-.5).toFixed(3));t.style.setProperty('--py',(e.clientY/innerHeight-.5).toFixed(3))},{passive:true});
 })();
-/* ---------- Voice studio: record your own voices for the story characters (saved on this device only) ---------- */
-const Studio=(function(){
- const CAST=['atok','aira','echo','ben','maya','kofi'];
- const FX={normal:{label:'Normal',rate:1},deeper:{label:'Deeper (older)',rate:.86},higher:{label:'Higher (younger)',rate:1.14}};
- const key=t=>String(t).replace(/<[^>]+>/g,'').replace(/[‘’]/g,"'").replace(/\s+/g,' ').trim();
- let fx={atok:'deeper'};try{Object.assign(fx,JSON.parse(localStorage.getItem('seVoiceFx')||'{}'))}catch(e){}
- const saveFx=()=>{try{localStorage.setItem('seVoiceFx',JSON.stringify(fx))}catch(e){}};
- window.VOICE_LOCAL={};
- const rateOf=who=>(FX[fx[who]]||FX.normal).rate;
- /* storage (IndexedDB) */
- let dbp=null;
- function db(){if(!dbp)dbp=new Promise((res,rej)=>{try{const r=indexedDB.open('seVoices',1);r.onupgradeneeded=()=>r.result.createObjectStore('rec',{keyPath:'id'});r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)}catch(e){rej(e)}});return dbp}
- const tx=(mode,fn)=>db().then(d=>new Promise((res,rej)=>{const t=d.transaction('rec',mode),st=t.objectStore('rec');const out=fn(st);t.oncomplete=()=>res(out&&out.result);t.onerror=()=>rej(t.error)}));
- function setLocal(who,k,blob){const m=VOICE_LOCAL[who]=VOICE_LOCAL[who]||{};if(m[k])URL.revokeObjectURL(m[k].url);if(blob)m[k]={url:URL.createObjectURL(blob),blob};else delete m[k]}
- const ready=tx('readonly',st=>st.getAll()).then(all=>{(all||[]).forEach(r=>setLocal(r.who,r.k,r.blob))}).catch(()=>{});
- /* which lines each character speaks */
- function linesOf(who){const all=[...PROLOGUE,...FINALE,...Object.values(MEMORY).flat()],seen=new Set(),out=[];
-  all.forEach(l=>{if(l&&l.who===who&&l.t){const k=key(l.t);if(!seen.has(k)){seen.add(k);out.push({t:l.t,k})}}});return out}
- /* playback used by the story (Sound.speak) */
- function get(who,text){const m=VOICE_LOCAL[who];const r=m&&m[key(text)];return r?{src:r.url,rate:rateOf(who)}:null}
- /* UI */
- let who='atok',rec=null,player=null;
- const el=()=>$('#studioBody');
- function stopPlayer(){if(player){try{player.pause()}catch(e){}player=null}}
- function play(k,btn){stopPlayer();Sound.stopVoice();const r=VOICE_LOCAL[who]&&VOICE_LOCAL[who][k];if(!r)return;
-  const a=new Audio(r.url);a.preservesPitch=a.mozPreservesPitch=a.webkitPreservesPitch=false;a.playbackRate=rateOf(who);player=a;
-  if(btn){btn.textContent='🔊 Playing…';a.onended=a.onerror=a.onpause=()=>{btn.textContent='▶ Play'}}a.play().catch(()=>{})}
- async function startRec(k,btn,row){
-  if(rec){rec.stop();return}
-  if(!navigator.mediaDevices||!window.MediaRecorder){row.querySelector('.st').textContent='⚠ This browser can’t record. Try Chrome, Edge or Safari.';return}
-  let stream;try{stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}})}
-  catch(e){row.querySelector('.st').textContent='⚠ Microphone blocked. Allow the microphone for this page and try again.';return}
-  stopPlayer();Sound.stopVoice();
-  const chunks=[],mr=new MediaRecorder(stream);rec=mr;const t0=Date.now();
-  document.querySelectorAll('#studioBody .recb').forEach(b=>{if(b!==btn)b.disabled=true});
-  btn.classList.add('on');row.classList.add('recording');const tick=setInterval(()=>{btn.textContent=`⏹ Stop (${Math.round((Date.now()-t0)/1000)}s)`},250);btn.textContent='⏹ Stop (0s)';
-  const auto=setTimeout(()=>mr.state==='recording'&&mr.stop(),40000);
-  mr.ondataavailable=e=>e.data&&e.data.size&&chunks.push(e.data);
-  mr.onstop=async()=>{clearInterval(tick);clearTimeout(auto);stream.getTracks().forEach(t=>t.stop());rec=null;
-   const blob=new Blob(chunks,{type:mr.mimeType||'audio/webm'});
-   if(blob.size>800){setLocal(who,k,blob);try{await tx('readwrite',st=>st.put({id:who+'|'+k,who,k,blob}))}catch(e){}}
-   render();const nb=document.querySelector(`#studioBody [data-k="${CSS.escape(k)}"] .playb`);if(nb){nb.focus();play(k,nb)}};
-  mr.start()}
- async function del(k){setLocal(who,k,null);try{await tx('readwrite',st=>st.delete(who+'|'+k))}catch(e){}render()}
- async function delAll(){if(!confirm(`Delete all your recordings for ${PEOPLE[who].name.split(' ·')[0]}?`))return;
-  for(const k of Object.keys(VOICE_LOCAL[who]||{}))await del(k)}
- function render(){const lines=linesOf(who),mine=VOICE_LOCAL[who]||{},n=lines.filter(l=>mine[l.k]).length;
-  $('#studioCast').innerHTML=CAST.map(c=>{const c2=linesOf(c),d=c2.filter(l=>(VOICE_LOCAL[c]||{})[l.k]).length;
-   return `<button class="castb${c===who?' on':''}" data-who="${c}" aria-pressed="${c===who}"><span class="av">${PEOPLE[c].svg()}</span><b>${PEOPLE[c].name.split(' ·')[0]}</b><small>${d} / ${c2.length} recorded</small></button>`}).join('');
-  $('#studioFx').innerHTML=`<span>Voice effect for ${PEOPLE[who].name.split(' ·')[0]}:</span>`+Object.entries(FX).map(([id,f])=>`<button class="fxb${(fx[who]||'normal')===id?' on':''}" data-fx="${id}" aria-pressed="${(fx[who]||'normal')===id}">${f.label}</button>`).join('');
-  el().innerHTML=`<p class="sprog">🎙️ <b>${n} / ${lines.length}</b> lines recorded for ${PEOPLE[who].name.split(' ·')[0]}</p>`+lines.map((l,i)=>`<div class="sline${mine[l.k]?' has':''}" data-k="${l.k.replace(/"/g,'&quot;')}">
-   <span class="no">${i+1}</span><p class="tx">${l.t}</p>
-   <div class="sb"><span class="st">${mine[l.k]?'✅ Recorded':'○ Not recorded yet'}</span>
-   <button class="btn recb">${mine[l.k]?'🎙️ Re-record':'🎙️ Record'}</button>${mine[l.k]?'<button class="btn ghost playb">▶ Play</button><button class="btn ghost delb" aria-label="Delete this recording">🗑</button>':''}</div></div>`).join('');
-  el().querySelectorAll('.sline').forEach(row=>{const k=row.dataset.k;
-   row.querySelector('.recb').onclick=e=>startRec(k,e.currentTarget,row);
-   const pb=row.querySelector('.playb');if(pb)pb.onclick=()=>play(k,pb);
-   const db_=row.querySelector('.delb');if(db_)db_.onclick=()=>del(k)});
-  $('#studioDelAll').disabled=!n}
- document.addEventListener('click',e=>{const c=e.target.closest('#studioCast [data-who]');if(c&&!rec){who=c.dataset.who;stopPlayer();render()}
-  const f=e.target.closest('#studioFx [data-fx]');if(f){fx[who]=f.dataset.fx;saveFx();render()}});
- function open(){ready.then(()=>{show('s-studio');render()})}
- function leave(){if(rec)rec.stop();stopPlayer()}
- return {open,leave,get,delAll,ready};
-})();
-$('#studioBtn').onclick=()=>{Sound.init();Studio.open()};
-$('#studioDelAll').onclick=()=>Studio.delAll();
-$('#studioBack').onclick=()=>{Studio.leave();show('s-title')};
 $('#start').onclick=()=>{Sound.init();cutscene('Prologue','The Parcel',PROLOGUE,'title',()=>show('s-map'))};
 function paintResume(){const n=[...ORDER,...EXTRA].filter(k=>done.has(k)).length;
  $('#choice').classList.toggle('hidden',!n);$('#start').classList.toggle('hidden',!!n);
