@@ -1765,7 +1765,8 @@ const svgTwins=()=>`<svg class="mach" viewBox="0 0 300 190" role="img" aria-labe
 PEOPLE.spirit={name:'Spirit',svg:()=>svgSpirit(),color:'#ffb37a'};
 (()=>{const S=M.spirit,O=M.opp;
  /* Show Spirit's real NASA photo beside Opportunity's */
- if(S.photo&&!O.photoB)O.photoB=S.photo;
+ if(O.photo&&!O.photoB)O.photoB=Object.assign({},O.photo,{tag:'NASA illustration',alt:'NASA illustration of a Mars Exploration Rover, which shows what Spirit looked like on Mars',
+  caption:'<b>Spirit landed on Mars 4 January 2004.</b> Spirit was Opportunity\'s identical twin, so this NASA picture shows what Spirit looked like too: the camera mast, the round antenna, the robotic arm and the six wheels. <i>Image: <a href="https://images.nasa.gov/details/PIA04413" target="_blank" rel="noopener" title="See this picture in NASA\'s image library">NASA/JPL/Cornell University ↗</a></i>'});
  const oppPlay=Object.assign({},O.play,{part:2,partTitle:'Opportunity: Hunt for blueberries 🫐',intro:O.play.intro.replace('<b>Part 1:</b> ',''),nextLabel:'Part 3: Survive the dust storm ▶'});
  Object.assign(O,{name:'Spirit & Opportunity Rovers',short:'Oppy & Spirit',nick:'The twin rovers that found water clues',twins:true,svg:svgTwins,
   where:'🔴 Spirit: Gusev Crater · Opportunity: Meridiani Planum · landed January 2004',
