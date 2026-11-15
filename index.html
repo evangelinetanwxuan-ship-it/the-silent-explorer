@@ -793,8 +793,19 @@ small{font-size:.875rem}
   </section>
 </main>
 
-<script>/* Aira's recorded voice (ElevenLabs "Marie"). Keys must match her dialogue text exactly. */
-window.VOICE_REC={aira:{
+<script>/* Recorded voices: Aira (ElevenLabs "Marie"), Grandpa (ElevenLabs "Jonas"). Keys must match their dialogue text exactly. */
+window.VOICE_REC={atok:{
+ "Return to sender? Hmm. Nobody sends me parcels. Open it carefully, Aira.": "audio/grandpa-01.mp3",
+ "When I was your age, we heard about the Moon missions on the radio, and I cut every Moon picture I could find out of the newspaper. Who knows what that thing can show you?": "audio/grandpa-02.mp3",
+ "Come, Aira. Let's write ECHO's story in my scrapbook — right next to the Moon car.": "audio/grandpa-03.mp3",
+ "Aira, look! My old scrapbook. I cut this picture of the Moon car out of the newspaper in 1971!": "audio/grandpa-04.mp3",
+ "That's me! Ten years old, sitting next to my father's old radio.": "audio/grandpa-05.mp3",
+ "The news said an American robot had landed on the Moon. Not crashed. Landed! Softly, like a feather.": "audio/grandpa-06.mp3",
+ "Some people thought the Moon was covered in deep dust that would swallow a spaceship. But the robot's pictures showed its foot standing on firm ground.": "audio/grandpa-07.mp3",
+ "I looked up at the Moon that night and thought: if a robot can stand there, one day people will too. Three years later, they did.": "audio/grandpa-08.mp3",
+ "Hah! An old man has many stories, Aira. That's why we must tell them, before they are forgotten.": "audio/grandpa-09.mp3"
+},
+aira:{
  "Grandpa! There's a parcel at the door. It's so dusty… the label says ECHO-7, Return to Sender.": "audio/aira-01.mp3",
  "It's… a VR headset! A really old one. There's a little light blinking inside.": "audio/aira-02.mp3",
  "Okay… putting it on. Three… two… one…": "audio/aira-03.mp3",
@@ -1926,22 +1937,22 @@ const Sound=(()=>{
  let recAudio=null;const recKey=t=>String(t).replace(/<[^>]+>/g,'').replace(/[\u2018\u2019]/g,"'").replace(/\s+/g,' ').trim();
  function recFor(text,who){const r=window.VOICE_REC&&VOICE_REC[who];return r?r[recKey(text)]||null:null}
  function stopRec(){if(recAudio){const a=recAudio;recAudio=null;a.onended=a.onerror=null;try{a.pause()}catch(e){}}}
- let pendingSpeak=null;
- function stopVoice(){clearTimeout(pendingSpeak);pendingSpeak=null;stopRec();if(hasTTS)try{speechSynthesis.cancel()}catch(e){}speaking=false;level();document.dispatchEvent(new Event('voiceend'))}
+ let pendingSpeak=null,sid=0;
+ function stopVoice(){sid++;clearTimeout(pendingSpeak);pendingSpeak=null;stopRec();if(hasTTS)try{speechSynthesis.cancel()}catch(e){}speaking=false;level();document.dispatchEvent(new Event('voiceend'))}
  function speak(text,who,onend){
   if(!on.voice){onend&&onend();return false}
-  const rec=recFor(text,who);
+  const rec=recFor(text,who),my=++sid;
   if(rec){stopRec();clearTimeout(pendingSpeak);pendingSpeak=null;if(hasTTS)try{speechSynthesis.cancel()}catch(e){}
    const a=new Audio(rec);recAudio=a;let fin=false;
-   const end=()=>{if(fin)return;fin=true;if(recAudio===a)recAudio=null;speaking=false;level();document.dispatchEvent(new Event('voiceend'));onend&&onend()};
-   a.onplay=()=>{speaking=true;level();document.dispatchEvent(new Event('voicestart'))};a.onended=a.onerror=end;
+   const end=()=>{if(fin||my!==sid)return;fin=true;if(recAudio===a)recAudio=null;speaking=false;level();document.dispatchEvent(new Event('voiceend'));onend&&onend()};
+   a.onplay=()=>{if(my!==sid)return;speaking=true;level();document.dispatchEvent(new Event('voicestart'))};a.onended=a.onerror=end;
    a.play().catch(end);return true}
   stopRec();if(!hasTTS){onend&&onend();return false}
   try{speechSynthesis.cancel()}catch(e){}
   const p=PROF[who]||PROF.narrator,u=new SpeechSynthesisUtterance(clean(text));
   const v=pick(p),nat=v&&p.nat&&isNat(v)&&p.nat.test(v.name);u.pitch=nat?p.natPitch:p.pitch;u.rate=nat?p.natRate:p.rate;if(v){u.voice=v;u.lang=v.lang}else u.lang='en-US';
-  u.onstart=()=>{speaking=true;level();document.dispatchEvent(new Event('voicestart'))};
-  u.onend=u.onerror=()=>{speaking=false;level();document.dispatchEvent(new Event('voiceend'));onend&&onend()};
+  u.onstart=()=>{if(my!==sid)return;speaking=true;level();document.dispatchEvent(new Event('voicestart'))};
+  u.onend=u.onerror=()=>{if(my!==sid)return;speaking=false;level();document.dispatchEvent(new Event('voiceend'));onend&&onend()};
   clearTimeout(pendingSpeak);pendingSpeak=setTimeout(()=>{pendingSpeak=null;try{speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}},70);return true}
  function paint(){const mb=$('#musicBtn'),vb=$('#voiceBtn');
   mb.classList.toggle('off',!on.music);mb.setAttribute('aria-pressed',on.music);mb.textContent=on.music?'🎵 Music on':'🎵 Music off';
