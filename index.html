@@ -662,6 +662,8 @@ small{font-size:.875rem}
 .pdots .ok{color:var(--teal);font-weight:600}
 .pnote{margin:4px 0 0;font-size:.9rem;color:var(--muted)}
 .pnote b{color:var(--ink);white-space:nowrap}
+/* Two photos side by side from tablet width up */
+@media (min-width:600px) and (max-width:1099px){.photos.two{display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:900px;margin:14px auto;align-items:start}.photos.two .photo{margin:0;max-width:none}}
 </style>
 </head>
 <body>
@@ -1761,7 +1763,10 @@ Q4HI.insight='InSight and Phoenix here! Ask us a question. 🎙️';
 const inner2=s=>s.replace(/^<svg[^>]*>/,'').replace(/<\/svg>$/,'');
 const svgTwins=()=>`<svg class="mach" viewBox="0 0 300 190" role="img" aria-label="Spirit and Opportunity, the twin Mars rovers"><svg x="-6" y="40" width="160" height="101" viewBox="0 0 300 190">${inner2(svgOpp())}</svg><svg x="146" y="40" width="160" height="101" viewBox="0 0 300 190">${inner2(svgOpp())}</svg><text x="74" y="160" text-anchor="middle" font-size="11" fill="#cfd4dc" font-family="Space Mono,monospace">SPIRIT</text><text x="226" y="160" text-anchor="middle" font-size="11" fill="#cfd4dc" font-family="Space Mono,monospace">OPPORTUNITY</text></svg>`;
 PEOPLE.spirit={name:'Spirit',svg:()=>svgSpirit(),color:'#ffb37a'};
-(()=>{const S=M.spirit,O=M.opp,oppPlay=Object.assign({},O.play,{part:2,partTitle:'Opportunity: Hunt for blueberries 🫐',intro:O.play.intro.replace('<b>Part 1:</b> ',''),nextLabel:'Part 3: Survive the dust storm ▶'});
+(()=>{const S=M.spirit,O=M.opp;
+ /* Show Spirit's real NASA photo beside Opportunity's */
+ if(S.photo&&!O.photoB)O.photoB=S.photo;
+ const oppPlay=Object.assign({},O.play,{part:2,partTitle:'Opportunity: Hunt for blueberries 🫐',intro:O.play.intro.replace('<b>Part 1:</b> ',''),nextLabel:'Part 3: Survive the dust storm ▶'});
  Object.assign(O,{name:'Spirit & Opportunity Rovers',short:'Oppy & Spirit',nick:'The twin rovers that found water clues',twins:true,svg:svgTwins,
   where:'🔴 Spirit: Gusev Crater · Opportunity: Meridiani Planum · landed January 2004',
   story:[
