@@ -668,6 +668,10 @@ small{font-size:.875rem}
 .secretlock{max-width:640px;margin:10px auto;padding:16px 18px;border-radius:18px;border:2px dashed var(--line);color:var(--muted);text-align:center;background:rgba(6,9,24,.5)}
 .secretlock b{color:var(--ink)}
 #echoBtn small,#echoBtnEnd small{display:block;font-size:.875rem;font-weight:500;opacity:.85}
+/* Story: go back to the previous line */
+.bubble .prevb{position:absolute;left:16px;bottom:8px;font:inherit;font-size:.9rem;font-weight:600;color:var(--muted);background:rgba(255,255,255,.06);border:1px solid var(--line);border-radius:999px;padding:4px 12px;cursor:pointer}
+.bubble .prevb:hover{color:var(--ink);border-color:var(--teal)}
+@media (pointer:coarse){.bubble .prevb{min-height:44px;bottom:4px}}
 </style>
 </head>
 <body>
@@ -2357,7 +2361,7 @@ function discover(el){
 /* Scene player: used for the machine stories, memory recordings, prologue and finale */
 function scene(el,lines,onDone,o={}){
  el.innerHTML=`<div class="scene"><div class="scene-tag"></div><div class="story"><div class="avatar"></div>
- <div class="bubble" tabindex="0" role="button" aria-label="Next line"><div class="speaker"></div><p class="line" aria-live="polite"></p><div class="pic"></div><div class="more"></div></div></div></div>
+ <div class="bubble" tabindex="0" role="button" aria-label="Next line"><div class="speaker"></div><p class="line" aria-live="polite"></p><div class="pic"></div><button class="prevb hidden" type="button" aria-label="Go back to the previous line">◀ Back</button><div class="more"></div></div></div></div>
  <div class="dots" style="margin-top:10px">${lines.map(()=>'<i></i>').join('')}</div>
  <div class="row"><button class="replay" id="replay">🔊 Hear it again</button><button class="btn ghost" id="skipScene">${o.skip||'Skip ▸'}</button></div>`;
  const box=el.querySelector('.scene'),tag=el.querySelector('.scene-tag'),p=el.querySelector('.line'),more=el.querySelector('.more'),dots=el.querySelectorAll('.dots i'),bub=el.querySelector('.bubble'),av=el.querySelector('.avatar'),spk=el.querySelector('.speaker'),pic=el.querySelector('.pic'),rp=el.querySelector('#replay');
@@ -2373,6 +2377,7 @@ function scene(el,lines,onDone,o={}){
   pic.innerHTML=L.img?`<img src="${L.img}" alt="Photo">`:'';
   dots.forEach((d,j)=>d.classList.toggle('on',j<=i));
   more.textContent=i===lines.length-1?(o.last||'Continue ▸'):'Tap to continue ▸';
+  pb.classList.toggle('hidden',i===0);
   rp.classList.toggle('hidden',!Sound.voice);
   if(bg==='glitch')Sound.sfx('buzz');else if(i===0)Sound.sfx('boot');
   Sound.speak(full,L.who);
@@ -2382,7 +2387,9 @@ function scene(el,lines,onDone,o={}){
  function next(e){if(e&&e.target&&e.target.tagName==='IMG')return;
   if(timer){clearInterval(timer);timer=null;p.textContent=full;return}
   if(i<lines.length-1){i++;line()}else done()}
- bub.onclick=next;bub.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();next()}};
+ function prev(){if(i>0){clearInterval(timer);timer=null;i--;line()}}
+ const pb=el.querySelector('.prevb');pb.onclick=e=>{e.stopPropagation();prev();bub.focus({preventScroll:true})};
+ bub.onclick=next;bub.onkeydown=e=>{if(e.key==='Enter'||e.key===' '||e.key==='ArrowRight'){e.preventDefault();next()}else if(e.key==='ArrowLeft'){e.preventDefault();prev()}};
  rp.onclick=()=>Sound.speak(full,lines[i].who);
  el.querySelector('#skipScene').onclick=done;
  const t0=setTimeout(line,400);bub.focus({preventScroll:true});
