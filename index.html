@@ -448,6 +448,7 @@ main{padding-bottom:90px}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
 #s-end h1{font-size:clamp(2rem,6vw,3.4rem);color:var(--accent)}
 #s-end p{max-width:620px;margin:10px auto;font-size:1.15rem}
+#echoIntv{max-width:900px;margin:26px auto 10px}#echoIntv .chat,#echoIntv .msg{text-align:left}#echoIntv p.lead{max-width:620px}
 /* Certificate */
 .cert-wrap{max-width:860px;margin:26px auto 10px}
 .cert-name{display:flex;gap:10px;justify-content:center;align-items:center;flex-wrap:wrap;margin:8px 0 4px}
@@ -771,6 +772,7 @@ small{font-size:.875rem}
     <p>You landed softly on the Moon, drove across it, raced a dust storm on Mars, dug for ice and listened to a planet tremble. You helped ECHO remember who it was. And all 14 silent explorers, from Eagle on the Moon to the Pioneer twins drifting towards the stars, are waiting to be remembered too.</p>
     <p>Some of these machines will never move again. Others still circle distant worlds or drift out of the solar system. But every rock they touched, every photo they sent, every quake they heard and every planet they found is still teaching us. Now their stories travel on with <b>you</b>.</p>
     <p style="color:var(--teal)" class="mono">"No explorer is forgotten — as long as someone tells their story."</p>
+    <div class="intv" id="echoIntv"></div>
     <div class="cert-wrap">
       <h2>🏅 Your Memory Keeper certificate</h2>
       <div class="cert-lock hidden" id="certLock"></div>
@@ -1152,8 +1154,13 @@ const M={
   quiz:{q:'How could InSight tell the difference between wind and a real marsquake?',opts:['It checked its weather sensors to see if it was windy','It asked astronauts nearby','It just guessed'],why:'InSight carried a little weather station. If the seismometer shook while it was windy, scientists knew to be careful — just like in your game!'}}
 };
 const Q4={"sv1":[["Hello! 👋 I'm <b>Surveyor 1</b>, a robot lander with three legs and a TV camera!","I was the <b>first of seven</b> Surveyor landers sent to scout the Moon before the astronauts came. 🔭","I'm a robot, so I carried no astronauts. Just me and my camera! 📷"],["My mission? <b>Be the Moon's scout!</b> 🕵️","Before people could land, NASA had to know: can a spacecraft land gently? Is the ground solid?","So I went first, to test the landing and look around with my camera. 📸"],["Big news: <b>the ground is firm!</b> 🦶 My footpad didn't sink into deep dust.","I sent home <b>more than 11,000 photos</b> of rocks, craters and soil. 📸","And I showed that a <b>soft landing</b> with rocket engines really works! 🚀"],["Without scouts like me, Apollo astronauts would have been landing on a <b>mystery surface</b>. 😬","My data helped NASA plan safe Apollo landings. Three years later, <b>people walked on the Moon</b>! 👩‍🚀","Even today, every Moon lander slows down with rocket engines, <b>just like I did</b>. 🔥"]],"lrv": [["Beep-beep! 🚗 I'm the <b>Lunar Roving Vehicle</b>, the first car ever driven by people on another world!", "My friends called me the <b>Moon buggy</b>. Three of us flew on Apollo 15, 16 and 17, in 1971 and 1972…", "…and all three of us are <b>still parked on the Moon</b>. No parking tickets up here! 😄"], ["My job? <b>Be the astronauts' taxi!</b> 🚕", "Walking on the Moon in a spacesuit is slow and tiring. With me, they could drive <b>much farther</b> from their lander…", "…explore more places and grab <b>way more rocks</b> before it was time to fly home. 🪨"], ["On Apollo 15 we found a superstar rock: the <b>Genesis Rock</b>! ✨", "It's a piece of the Moon's ancient crust, about <b>4 billion years old</b>. 🤯", "Apollo rocks showed the Moon and Earth are made of <b>very similar stuff</b>, and that the Moon was once covered in an <b>ocean of magma</b>! 🌋"], ["💥 Those rocks are the main clue that the Moon formed when a <b>Mars-sized planet smashed into the young Earth</b>!", "🔋 Black & Decker built a <b>cordless drill</b> for Apollo astronauts, and that work helped the company improve its cordless tools here on Earth!", "🪞 And the mirrors Apollo crews left are <b>still used today</b>! Scientists bounce lasers off them and found the Moon drifts about <b>3.8 cm farther away every year</b>."]], "opp": [["Hi hi! 👋 I'm <b>Opportunity</b>, but you can call me <b>Oppy</b>!", "I'm a solar-powered <b>robot geologist</b>, about the size of a golf cart. 🔬", "My twin, <b>Spirit</b>, landed on the other side of Mars. We were the rover twins! 👯"], ["I was a <b>water detective</b>! 🕵️💧", "Mars looks dry and dusty today. But my team wanted to know: <b>did liquid water ever flow here?</b>", "So I studied rocks and soil for clues. I was built to work for 90 days… and I kept going for almost <b>15 years</b>! 💪"], ["I found tiny round stones we nicknamed <b>blueberries</b> 🫐, made of a mineral called hematite.", "They, and rocks that formed in water, were <b>proof that Mars once had liquid water!</b> 💧", "Oh, and I drove about <b>45 km</b>, the record for driving on another world until Perseverance beat it in 2026! 🏁"], ["💧 Where there was water, there <b>might once have been life</b>.", "🚀 Discoveries like mine led NASA to send new rovers, <b>Curiosity and Perseverance</b>, to look for signs that Mars could have supported life.", "📱 Fun twist: engineers at <b>JPL</b>, the lab that built me, invented the tiny camera chip that's now in <b>almost every phone</b>, while trying to shrink cameras for space!"]], "insight": [["Shhh… 🤫 I'm <b>InSight</b>.", "I'm a <b>lander</b>, not a rover. I never drove anywhere!", "I sat in one spot on Mars from <b>2018 to 2022</b>… and listened. 👂"], ["I was a <b>planet doctor</b>! 🩺", "A doctor listens to your heartbeat. I listened to <b>marsquakes</b> to find out what's inside Mars: its crust, mantle and core.", "That helps scientists learn how rocky planets, <b>like Earth</b>, are made. 🌍"], ["I recorded <b>1,319 marsquakes</b>! 〰️", "They showed Mars has a <b>liquid metal core</b> 🔥 and a thinner crust than scientists expected.", "I even felt a space rock crash into Mars. Photos from orbit showed it had dug up <b>ice</b>, closer to the equator than anyone expected! 🧊"], ["🌍 Earth's moving plates have erased most clues about how our planet was born. <b>Mars kept them!</b>", "🔍 Studying Mars helps us understand why Earth stayed a <b>living world</b>, while Mars became a cold, dry desert.", "🧑‍🚀 And that ice? Great news for <b>future astronauts</b>, who could use it for water!"]]};
+Q4.echo=[
+ ["Hello, reporter. 📡 I'm <b>ECHO-7</b>, the VR headset guide who took you to the Moon, to Mars and into deep space.","I'm a <b>made-up story character</b>, not a real NASA machine. But the 14 explorers I showed you are all <b>real</b>! 🛰️","Someone built me, then my project was cancelled. I was packed in a box, stamped <b>Return to Sender</b>, and forgotten. 📦"],
+ ["My mission? <b>Give old machines a voice</b>, so people would remember them. 🎙️","I searched for silent explorers: landers, rovers, a helicopter, a telescope and probes heading for the stars.","Then I needed a helper with a curious mind. That was <b>you</b>, explorer! 🙌"],
+ ["I discovered that every machine has a <b>story</b>: Surveyor 1 found firm ground, the Moon buggy carried astronauts, Oppy roamed Mars for years and InSight heard marsquakes. 🌕🔴","I also discovered something about <b>myself</b>. The machines were not the only ones forgetting. I was too. 💭","Helping them remember… <b>helped me remember who I am</b>: an abandoned explorer, just like them. 💙"],
+ ["These machines went silent, but their photos, rocks and data are <b>still teaching scientists</b> today. 🔬","Each one was built and cared for by real people, and every mission helps the <b>next explorers</b> fly farther. 🚀","And nothing is truly abandoned as long as someone <b>tells its story</b>. Now you can tell mine! 🌟"]];
 const Q4H=[['🤖','Who were you?','c0'],['🎯','What was your mission?','c1'],['🔍','What did you discover?','c2'],['🌍','Why does it matter?','c3']];
-const Q4HI={sv1:'Beep! Camera ready. Ask me a question! 🎙️',lrv:'Hello, Earthling! Tap a question and ask me anything! 🎙️',opp:'Ooh, a reporter! Ask me a question! 🎙️',insight:'I am listening… ask me a question. 🎙️'};
+const Q4HI={echo:'Signal clear. 📡 This time, you ask the questions! 🎙️',sv1:'Beep! Camera ready. Ask me a question! 🎙️',lrv:'Hello, Earthling! Tap a question and ask me anything! 🎙️',opp:'Ooh, a reporter! Ask me a question! 🎙️',insight:'I am listening… ask me a question. 🎙️'};
 const ORDER=['sv1','lrv','opp','insight'];
 /* ---------- Bonus explorer portraits (inline SVG, drawn from NASA photos) ---------- */
 const shadow=(cy=172,rx=128)=>`<ellipse cx="150" cy="${cy}" rx="${rx}" ry="7" fill="rgba(0,0,0,.38)"/>`;
@@ -2006,7 +2013,15 @@ $('#resume').onclick=()=>{Sound.init();show('s-map')};
 $('#fresh').onclick=()=>{if(!confirm('Start fresh? This clears every memory you have restored.'))return;clearProgress();paintResume();$('#start').click()};
 paintResume();
 const finaleOpen=()=>ORDER.every(k=>done.has(k));
-const playFinale=()=>{if(!finaleOpen()){show('s-map');setTimeout(()=>$('#cards').scrollIntoView({behavior:'smooth',block:'center'}),100);return}cutscene('Finale','Who is ECHO?',FINALE,'listen',()=>show('s-end'))};
+const playFinale=()=>{if(!finaleOpen()){show('s-map');setTimeout(()=>$('#cards').scrollIntoView({behavior:'smooth',block:'center'}),100);return}cutscene('Finale','Who is ECHO?',FINALE,'listen',()=>{show('s-end');echoInterview()})};
+function echoInterview(){const el=$('#echoIntv');if(!el)return;
+ el.innerHTML=`<h2 class="real-title">🎤 Interview ECHO!</h2>
+ <p class="lead">Every explorer you met answered your questions. Now it's ECHO's turn. Tap a question and ECHO will answer.</p>
+ <div class="intv-box"><div class="intv-bot">${PEOPLE.echo.svg()}</div><div class="chat" id="chat"><div class="msg bot">${Q4HI.echo}</div></div></div>
+ <div class="intv-prog" id="iprog">${'☆'.repeat(4)} <span>0 / 4 questions asked</span></div>
+ <div class="qbtns">${Q4H.map((h,i)=>`<button class="qb ${h[2]}" data-q="${i}"><span class="e">${h[0]}</span>${h[1]}</button>`).join('')}</div>
+ <div class="intv-done hidden" id="idone">🏅 <b>Interview complete!</b> You earned the <b>Space Reporter</b> badge!</div>`;
+ interview(el,'echo')}
 $('#cast').innerHTML=['aira','atok','echo','ben','maya','kofi'].map(k=>`<div>${PEOPLE[k].svg()}${PEOPLE[k].name.split(' · ')[0]}</div>`).join('');
 document.addEventListener('pointerdown',()=>Sound.init(),{once:true});
 $('#musicBtn').onclick=()=>Sound.toggle('music');
@@ -2811,14 +2826,14 @@ function dig(el){
 }
 
 /* Interview: kids ask the 4 big questions, the machine answers in chat bubbles */
-function interview(el){
- const chat=el.querySelector('#chat'),bot=el.querySelector('.intv-bot'),asked=new Set();let busy=false,tok=0;const id=curId;
+function interview(el,id=curId){
+ const chat=el.querySelector('#chat'),bot=el.querySelector('.intv-bot'),asked=new Set();let busy=false,tok=0;const live=()=>id==='echo'||curId===id;
  const plain=h=>h.replace(/<[^>]+>/g,'');
  const scroll=()=>chat.scrollTo({top:chat.scrollHeight,behavior:'smooth'});
  function add(cls,html){const d=document.createElement('div');d.className='msg '+cls;d.innerHTML=html;chat.appendChild(d);scroll();return d}
  function prog(){el.querySelector('#iprog').innerHTML=`${'⭐'.repeat(asked.size)}${'☆'.repeat(4-asked.size)} <span>${asked.size} / 4 questions asked</span>`}
  function say(lines,k,done,my){
-  if(!document.body.contains(chat)||curId!==id||my!==tok)return;
+  if(!document.body.contains(chat)||!live()||my!==tok)return;
   if(k>=lines.length){bot.classList.remove('talking');done();return}
   const t=add('typing','<i></i><i></i><i></i>');
   setTimeout(()=>{t.remove();if(!document.body.contains(chat)||my!==tok)return;
