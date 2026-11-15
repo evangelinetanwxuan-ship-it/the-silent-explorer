@@ -772,6 +772,7 @@ small{font-size:.875rem}
 
   <!-- CUTSCENE -->
   <section id="s-scene" class="screen">
+    <div class="topbar"><button class="btn ghost" id="sceneBack">◀ Title</button></div>
     <div class="kicker" style="text-align:center" id="sc-kicker"></div>
     <h1 id="sc-title" style="text-align:center"></h1>
     <div id="sc-stage"></div>
@@ -2412,6 +2413,7 @@ function scene(el,lines,onDone,o={}){
  stopGame=stop;
 }
 function cutscene(kicker,title,lines,mood,onDone){
+ {const back=kicker==='Prologue'?'s-title':'s-map',bb=$('#sceneBack');bb.textContent=back==='s-title'?'◀ Title':'◀ Map';bb.onclick=()=>show(back)}
  show('s-scene');Sound.setMood(mood);
  $('#sc-kicker').textContent=kicker;$('#sc-title').textContent=title;
  scene($('#sc-stage'),lines,onDone,{last:'Continue ▸',skip:'Skip ▸'});
