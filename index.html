@@ -672,6 +672,10 @@ small{font-size:.875rem}
 .bubble .prevb{position:absolute;left:16px;bottom:8px;font:inherit;font-size:.9rem;font-weight:600;color:var(--muted);background:rgba(255,255,255,.06);border:1px solid var(--line);border-radius:999px;padding:4px 12px;cursor:pointer}
 .bubble .prevb:hover{color:var(--ink);border-color:var(--teal)}
 @media (pointer:coarse){.bubble .prevb{min-height:44px;bottom:4px}}
+/* Scroll-down hint on the ending screen */
+.scrollhint{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:5;font:inherit;font-weight:700;font-size:1rem;color:#141a33;background:var(--teal);border:0;border-radius:999px;padding:.7em 1.4em;min-height:44px;box-shadow:0 6px 24px rgba(0,0,0,.45);cursor:pointer;animation:hintbob 1.4s ease-in-out infinite;white-space:nowrap;max-width:calc(100vw - 32px);overflow:hidden;text-overflow:ellipsis}
+@keyframes hintbob{50%{transform:translate(-50%,-6px)}}
+@media (max-width:640px){.scrollhint{font-size:.9rem;padding:.6em 1em}}
 </style>
 </head>
 <body>
@@ -803,6 +807,7 @@ small{font-size:.875rem}
     <div id="certHome"></div>
   </section>
 </main>
+<button class="scrollhint hidden" id="scrollHint" type="button"></button>
 
 <script>/* Recorded voices: Aira (ElevenLabs "Marie"), Grandpa (ElevenLabs "Jonas"). Keys must match their dialogue text exactly. */
 window.VOICE_REC={atok:{
@@ -985,7 +990,8 @@ const FINALE=[
  {who:'kofi',t:"My instruments have no record of it. Wherever that signal comes from, it isn't from our missions."},
  {who:'echo',bg:'glitch',t:"…They are right. I was never on the Moon. I was never on Mars. I was never out among the asteroids or the giant planets."},
  {who:'echo',bg:'space',t:"I was a project too. I was built to give old machines a voice, so that people would remember them."},
- {who:'echo',t:"But my project was cancelled. I was packed in a box, stamped Return to Sender, and forgotten."},
+ {who:'echo',k:'fact',t:"In 1960, NASA launched Echo 1, a giant shiny balloon that bounced people's voices across America. In the end, Echo 1 and Echo 2 fell back to Earth and burned up."},
+ {who:'echo',k:'story',t:"I was named after them. And just like them, I was left behind."},
  {who:'echo',t:"The machines were not the only ones forgetting. I was too. Helping them remember… helped me remember who I am."},
  {who:'echo',t:"I am ECHO. I am an abandoned explorer, just like them."},
  {who:'echo',t:"Landers, rovers, a helicopter, a telescope and probes heading for the stars: 14 explorers, some of them twins, were left out there. Not one of them should be forgotten."},
@@ -2115,7 +2121,7 @@ try{done=new Set(JSON.parse(localStorage.getItem('silentExplorers')||'[]'))}catc
 function save(){try{localStorage.setItem('silentExplorers',JSON.stringify([...done]))}catch(e){}}
 let stopGame=null;
 function stopAll(){if(stopGame){stopGame();stopGame=null}Sound.stopVoice()}
-function show(id){stopAll();if(id!=='s-mission')delete document.body.dataset.stage;Sound.setMood(id==='s-end'?'end':id==='s-mission'&&cur?(curId==='insight'||curId==='alsep'?'listen':cur.world):'title');document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.id===id));window.scrollTo(0,0);if(id!=='s-scene'){const h=document.querySelector('#'+id+' h1, #'+id+' h2');if(h){h.tabIndex=-1;h.focus({preventScroll:true})}}if(id==='s-map')renderMap();if(id==='s-title')paintResume();if(id==='s-end'){$('#cast').before($('.cert-wrap'));renderCert();confetti()}if(id==='s-cert'){$('#certHome').append($('.cert-wrap'));renderCert();{const h=$('#certHome h2');h.tabIndex=-1;h.focus({preventScroll:true})}if(certData().unlocked)confetti()}}
+function show(id){setTimeout(updHint,700);stopAll();if(id!=='s-mission')delete document.body.dataset.stage;Sound.setMood(id==='s-end'?'end':id==='s-mission'&&cur?(curId==='insight'||curId==='alsep'?'listen':cur.world):'title');document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.id===id));window.scrollTo(0,0);if(id!=='s-scene'){const h=document.querySelector('#'+id+' h1, #'+id+' h2');if(h){h.tabIndex=-1;h.focus({preventScroll:true})}}if(id==='s-map')renderMap();if(id==='s-title')paintResume();if(id==='s-end'){$('#cast').before($('.cert-wrap'));renderCert();confetti()}if(id==='s-cert'){$('#certHome').append($('.cert-wrap'));renderCert();{const h=$('#certHome h2');h.tabIndex=-1;h.focus({preventScroll:true})}if(certData().unlocked)confetti()}}
 document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>show(b.dataset.go));
 const shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
 const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
@@ -2219,6 +2225,15 @@ function renderMap(){
 }
 $('#finale').onclick=()=>playFinale();
 $('#certBtn').onclick=()=>{Sound.init();show('s-cert')};
+
+/* Ending screen: show players there is more below (secret explorer + certificate) */
+function updHint(){const h=$('#scrollHint');if(!h)return;const end=$('#s-end');
+ const on=end&&end.classList.contains('active')&&scrollY<120&&document.documentElement.scrollHeight>innerHeight+200;
+ if(on)h.textContent=(echoOpen()?'⬇ Scroll down: secret explorer and certificate':'⬇ Scroll down for your certificate');
+ h.classList.toggle('hidden',!on)}
+addEventListener('scroll',()=>{if(!$('#scrollHint').classList.contains('hidden')&&scrollY>=120)updHint()},{passive:true});
+addEventListener('resize',updHint);
+$('#scrollHint').onclick=()=>{const t=echoOpen()?$('#echoBtnEnd'):$('#s-end .cert-wrap');t&&t.scrollIntoView({behavior:'smooth',block:'center'});$('#scrollHint').classList.add('hidden')};
 $('#echoBtn').onclick=$('#echoBtnEnd').onclick=()=>{Sound.init();openMission('echosat')};paintEcho();
 $('#reset').onclick=()=>{if(!confirm('Start fresh? This clears every memory you have restored.'))return;clearProgress();show('s-title')};
 $('#toMap').onclick=()=>show('s-map');
