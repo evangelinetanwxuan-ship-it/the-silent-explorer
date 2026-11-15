@@ -1888,22 +1888,23 @@ const Sound=(()=>{
  let recAudio=null;const recKey=t=>String(t).replace(/<[^>]+>/g,'').replace(/[\u2018\u2019]/g,"'").replace(/\s+/g,' ').trim();
  function recFor(text,who){const r=window.VOICE_REC&&VOICE_REC[who];return r?r[recKey(text)]||null:null}
  function stopRec(){if(recAudio){const a=recAudio;recAudio=null;a.onended=a.onerror=null;try{a.pause()}catch(e){}}}
- function stopVoice(){stopRec();if(hasTTS)try{speechSynthesis.cancel()}catch(e){}speaking=false;level();document.dispatchEvent(new Event('voiceend'))}
+ let pendingSpeak=null;
+ function stopVoice(){clearTimeout(pendingSpeak);pendingSpeak=null;stopRec();if(hasTTS)try{speechSynthesis.cancel()}catch(e){}speaking=false;level();document.dispatchEvent(new Event('voiceend'))}
  function speak(text,who,onend){
   if(!on.voice){onend&&onend();return false}
   const rec=recFor(text,who);
-  if(rec){stopRec();if(hasTTS)try{speechSynthesis.cancel()}catch(e){}
+  if(rec){stopRec();clearTimeout(pendingSpeak);pendingSpeak=null;if(hasTTS)try{speechSynthesis.cancel()}catch(e){}
    const a=new Audio(rec);recAudio=a;let fin=false;
    const end=()=>{if(fin)return;fin=true;if(recAudio===a)recAudio=null;speaking=false;level();document.dispatchEvent(new Event('voiceend'));onend&&onend()};
    a.onplay=()=>{speaking=true;level();document.dispatchEvent(new Event('voicestart'))};a.onended=a.onerror=end;
    a.play().catch(end);return true}
-  if(!hasTTS){onend&&onend();return false}
+  stopRec();if(!hasTTS){onend&&onend();return false}
   try{speechSynthesis.cancel()}catch(e){}
   const p=PROF[who]||PROF.narrator,u=new SpeechSynthesisUtterance(clean(text));
   const v=pick(p),nat=v&&p.nat&&isNat(v)&&p.nat.test(v.name);u.pitch=nat?p.natPitch:p.pitch;u.rate=nat?p.natRate:p.rate;if(v){u.voice=v;u.lang=v.lang}else u.lang='en-US';
   u.onstart=()=>{speaking=true;level();document.dispatchEvent(new Event('voicestart'))};
   u.onend=u.onerror=()=>{speaking=false;level();document.dispatchEvent(new Event('voiceend'));onend&&onend()};
-  setTimeout(()=>{try{speechSynthesis.speak(u)}catch(e){}},70);return true}
+  clearTimeout(pendingSpeak);pendingSpeak=setTimeout(()=>{pendingSpeak=null;try{speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}},70);return true}
  function paint(){const mb=$('#musicBtn'),vb=$('#voiceBtn');
   mb.classList.toggle('off',!on.music);mb.setAttribute('aria-pressed',on.music);mb.textContent=on.music?'🎵 Music on':'🎵 Music off';
   vb.classList.toggle('off',!on.voice);vb.setAttribute('aria-pressed',on.voice);vb.textContent=on.voice?'🗣️ Voice on':'🗣️ Voice off';
