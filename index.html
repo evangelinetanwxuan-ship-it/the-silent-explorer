@@ -145,8 +145,8 @@ p{line-height:1.5}
 .trio>div>svg{animation:bob 4s ease-in-out infinite}
 .trio>div:nth-child(2)>svg{animation-delay:-1.3s}.trio>div:nth-child(3)>svg{animation-delay:-2.6s}
 .tname{display:block;text-align:center;margin-top:6px;line-height:1.25;min-height:2.6em}
-.tname b{display:block;font-size:clamp(.78rem,1.8vw,1.02rem);color:var(--ink)}
-.tname small{display:block;font-size:clamp(.66rem,1.4vw,.8rem);color:var(--muted)}
+.tname b{display:block;font-size:clamp(.875rem,1.8vw,1.02rem);color:var(--ink)}
+.tname small{display:block;font-size:.875rem;color:var(--muted)}
 @keyframes bob{50%{transform:translateY(-6px)}}
 .flow{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:10px 0 26px}
 .flow span{border:1px solid var(--line);border-radius:999px;padding:.3em .9em;color:var(--muted);font-size:.95rem}
@@ -487,7 +487,7 @@ main{padding-bottom:90px}
 .certreq{text-align:center;color:var(--muted);font-size:.95rem;margin:14px 0 0}
 .endbtns{gap:14px;align-items:stretch}
 .endbtns .btn{flex:1 1 300px;max-width:440px;line-height:1.2}
-.endbtns .btn small{display:block;font-size:.8rem;font-weight:500;opacity:.8;margin-top:4px}
+.endbtns .btn small{display:block;font-size:.875rem;font-weight:500;opacity:.8;margin-top:4px}
 .btn.teal.locked{background:rgba(94,230,208,.08);color:var(--teal);border:2px dashed var(--teal);box-shadow:none}
 .btn.certbtn{background:linear-gradient(180deg,#ffe08a,#f2b84b);box-shadow:0 4px 0 #b9852a}
 .btn.certbtn:active{box-shadow:0 1px 0 #b9852a}
@@ -495,6 +495,56 @@ main{padding-bottom:90px}
 #s-cert .cert-wrap{margin-top:6px}
 @media(max-width:640px){.seals{grid-template-columns:1fr 1fr}.cert{padding:30px 16px 20px;outline-offset:-10px}.cert .stamp{display:none}.cert .ck{letter-spacing:.12em;font-size:.7rem}.sig{min-width:100%;margin-top:8px}}
 @media print{body *{visibility:hidden}#cert,#cert *{visibility:visible}#cert{position:absolute;left:0;top:0;width:100%;margin:0;box-shadow:none}html,body{background:#fff}}
+
+/* ===== UI/UX audit fixes (game-ui-ux / game-ui-design) ===== */
+/* Readable text: body text >= 14px, small badges >= 12.5px */
+.kicker{font-size:.875rem}
+.steps-hint{font-size:.9rem}
+.scene-tag{font-size:.875rem}
+.speaker{font-size:.9rem}
+.chip,.fic,.realtag{font-size:.78rem}
+.card small{font-size:.9rem}
+.card .st{font-size:.875rem}
+.card .wtag{font-size:.78rem}
+.photo .tag{font-size:.78rem}
+.replay,.mini,.nasarec .foot,.sources,.note{font-size:.9rem}
+.nasarec .grid small{font-size:.78rem}
+.datanote small{font-size:.875rem}
+small{font-size:.875rem}
+.cast div{font-size:.9rem}
+.intv-prog span{font-size:.9rem}
+.pin b{font-size:.875rem}
+.pin.mini b{font-size:.78rem}
+.planet .blabel{font-size:.78rem}
+.sound button{font-size:.95rem}
+/* One consistent, clearly visible keyboard/controller focus ring */
+:where(button,a[href],input,[role=button],.bubble):focus-visible{outline:3px solid #fff;outline-offset:3px;box-shadow:0 0 0 6px rgba(94,230,208,.45)}
+.bubble:focus-visible{outline:3px solid #fff;outline-offset:4px}
+[tabindex="-1"]:focus{outline:none}
+/* Hover feedback on the main buttons and map beacons */
+@media (hover:hover){.btn:not(:disabled):hover{filter:brightness(1.08);transform:translateY(-1px)}.pin:hover b{background:var(--accent);color:#141a33}.replay:hover,.mini:hover{border-color:var(--accent);color:var(--ink)}}
+/* Finished beacons show a tick, not just a colour change */
+.pin.done b::before{content:'✓ '}
+/* Low battery/fuel shows a warning label, not just a red bar */
+.bar i.low{background:repeating-linear-gradient(135deg,var(--bad) 0 8px,#ff9a9a 8px 14px)}
+.meter:has(.bar i.low)::after{content:'⚠ Low';color:var(--bad);font-weight:700}
+/* Respect notches and rounded corners */
+.sound{right:calc(14px + env(safe-area-inset-right));bottom:calc(14px + env(safe-area-inset-bottom))}
+/* Touch-friendly targets (44px) on touch screens */
+@media (pointer:coarse){
+ .lb button,.replay,.mini,.sound button,.resume,.opt,.act{min-height:44px}
+ .steps span{min-height:44px;display:inline-flex;align-items:center}
+ .jump a{min-height:44px;display:inline-flex;align-items:center}
+ .msg .rp{min-width:44px;min-height:44px}
+ .sources a,.lblinks a{padding:10px 0}
+}
+/* Phones: sound buttons sit at the top of the page instead of floating over the game */
+@media (max-width:640px){
+ main{padding-top:60px;padding-bottom:40px}
+ .sound{position:absolute;top:calc(12px + env(safe-area-inset-top));bottom:auto;right:calc(12px + env(safe-area-inset-right))}
+ /* While playing, keep the game near the top of the screen */
+ body[data-stage="2"] #s-mission #m-where,body[data-stage="2"] #s-mission #m-dates,body[data-stage="2"] #s-mission .steps-hint{display:none}
+}
 </style>
 </head>
 <body>
@@ -1728,7 +1778,7 @@ try{done=new Set(JSON.parse(localStorage.getItem('silentExplorers')||'[]'))}catc
 function save(){try{localStorage.setItem('silentExplorers',JSON.stringify([...done]))}catch(e){}}
 let stopGame=null;
 function stopAll(){if(stopGame){stopGame();stopGame=null}Sound.stopVoice()}
-function show(id){stopAll();Sound.setMood(id==='s-end'?'end':id==='s-mission'&&cur?(curId==='insight'||curId==='alsep'?'listen':cur.world):'title');document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.id===id));window.scrollTo(0,0);if(id==='s-map')renderMap();if(id==='s-title')paintResume();if(id==='s-end'){$('#cast').before($('.cert-wrap'));renderCert();confetti()}if(id==='s-cert'){$('#certHome').append($('.cert-wrap'));renderCert();if(certData().unlocked)confetti()}}
+function show(id){stopAll();if(id!=='s-mission')delete document.body.dataset.stage;Sound.setMood(id==='s-end'?'end':id==='s-mission'&&cur?(curId==='insight'||curId==='alsep'?'listen':cur.world):'title');document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.id===id));window.scrollTo(0,0);if(id!=='s-scene'){const h=document.querySelector('#'+id+' h1, #'+id+' h2');if(h){h.tabIndex=-1;h.focus({preventScroll:true})}}if(id==='s-map')renderMap();if(id==='s-title')paintResume();if(id==='s-end'){$('#cast').before($('.cert-wrap'));renderCert();confetti()}if(id==='s-cert'){$('#certHome').append($('.cert-wrap'));renderCert();{const h=$('#certHome h2');h.tabIndex=-1;h.focus({preventScroll:true})}if(certData().unlocked)confetti()}}
 document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>show(b.dataset.go));
 const shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
 const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
@@ -1865,7 +1915,7 @@ function openMission(id){curId=id;cur=M[id];Sound.init();show('s-mission');$('#m
   const L=pick('Launched'),D=pick('Landed'),place={moon:'on the Moon',mars:'on Mars'}[cur.world]||'';
   $('#m-dates').innerHTML=[cur.built&&['🛠️ Built',cur.built],L&&['🚀 Launched',L],D&&[`${cur.world==='mars'?'🔴':cur.world==='moon'?'🌕':'🛬'} Landed${place?' '+place:''}`,D]].filter(Boolean).map(([k,v])=>`<span><b>${k}</b>${v}</span>`).join('')}$('#m-world').textContent={moon:'THE MOON',mars:'MARS',deep:'DEEP SPACE'}[cur.world]+(EXTRA.includes(id)?' · ⭐ BONUS':'');goStage(0)}
 function goStage(i){
- stopAll();
+ stopAll();document.body.dataset.stage=i;
  $('#steps').innerHTML=STAGES.map((s,k)=>`<span role="button" tabindex="0" data-stage="${k}" title="Go to ${s.replace(/^\S+ /,'')}" class="${k===i?'on':k<i?'ok':''}">${k<i?'✔ ':''}${s}</span>`).join('');
  const el=$('#stage');el.innerHTML='';
  [discover,story,play,learn][i](el);
@@ -1873,11 +1923,13 @@ function goStage(i){
  window.scrollTo({top:0,behavior:'smooth'});
 }
 
-function photoHTML(p=cur.photo){return p?`<figure class="photo">${p.svg?`<div class="photo-svg ${cur.world}" role="img" aria-label="${p.alt}">${cur.svg()}</div>`:`<img src="${p.src}" alt="${p.alt}" loading="lazy"${p.alt2src?` onerror="if(!this.dataset.f){this.dataset.f=1;this.src='${p.alt2src}'}else{this.closest('figure').classList.add('nophoto')}"`:''}>${p.fallback?`<div class="photo-svg ${cur.world} fallback" role="img" aria-label="${p.alt}">${p.fallback()}</div>`:''}`}<figcaption><span class="tag tg-img">${p.tag}</span>${p.fallback?'<span class="tag tg-fb">Drawing</span>':''}${p.caption}</figcaption></figure>`:''}
+function photoHTML(p=cur.photo){return p?`<figure class="photo">${p.svg?`<div class="photo-svg ${cur.world}" role="img" aria-label="${p.alt}">${cur.svg()}</div>`:`<img src="${p.src}" alt="${p.alt}" loading="lazy" tabindex="0" role="button" aria-label="Enlarge photo: ${p.alt}"${p.alt2src?` onerror="if(!this.dataset.f){this.dataset.f=1;this.src='${p.alt2src}'}else{this.closest('figure').classList.add('nophoto')}"`:''}>${p.fallback?`<div class="photo-svg ${cur.world} fallback" role="img" aria-label="${p.alt}">${p.fallback()}</div>`:''}`}<figcaption><span class="tag tg-img">${p.tag}</span>${p.fallback?'<span class="tag tg-fb">Drawing</span>':''}${p.caption}</figcaption></figure>`:''}
 document.addEventListener('click',e=>{const lb=$('#lightbox');
- if(e.target.matches('.photo img')){lb.querySelector('img').src=e.target.src;lb.querySelector('img').alt=e.target.alt;lb.classList.remove('hidden');lb.querySelector('.lbx').focus()}
- else if(e.target.closest('#lightbox'))lb.classList.add('hidden')});
-document.addEventListener('keydown',e=>{if(e.key==='Escape')$('#lightbox').classList.add('hidden')});
+ if(e.target.matches('.photo img')){lbOpener=e.target;lb.querySelector('img').src=e.target.src;lb.querySelector('img').alt=e.target.alt;lb.classList.remove('hidden');lb.querySelector('.lbx').focus()}
+ else if(e.target.closest('#lightbox'))closeLightbox()});
+let lbOpener=null;
+function closeLightbox(){const lb=$('#lightbox');if(lb.classList.contains('hidden'))return;lb.classList.add('hidden');if(lbOpener&&document.contains(lbOpener)){if(lbOpener.tabIndex<0)lbOpener.tabIndex=-1;lbOpener.focus({preventScroll:true})}lbOpener=null}
+document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches&&e.target.matches('.photo img')){e.preventDefault();e.target.click();return}const lb=$('#lightbox');if(lb.classList.contains('hidden'))return;if(e.key==='Escape'){e.preventDefault();closeLightbox()}else if(e.key==='Tab'){e.preventDefault();lb.querySelector('.lbx').focus()}});
 
 /* 1. DISCOVER — brush away the dust */
 function discover(el){
