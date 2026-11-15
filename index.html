@@ -648,6 +648,20 @@ small{font-size:.875rem}
  #s-title .trio{transform:translate(calc(var(--px,0)*10px),calc(var(--py,0)*6px))}
 }
 @media (max-width:640px){#trio>div .zzz{font-size:.85rem;right:4%}#trio>div .wk{padding:1px 7px}.wake-prog .caught{display:block;margin:4px 0 0}}
+/* Progress panel on the "Memory restored!" card */
+.bprog{margin:14px 0 4px;padding-top:12px;border-top:1px dashed var(--line);text-align:left}
+.bprog h3{text-align:center;font-size:1.05rem;margin:0 0 8px}
+.ptrack{background:rgba(6,9,24,.45);border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin:8px 0}
+.ptrack.open{border-color:var(--accent);background:rgba(255,209,102,.08)}
+.phead{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.phead span{color:var(--muted);font-size:.9rem}
+.ptrack.open .phead span{color:var(--accent);font-weight:600}
+.pbar{height:12px;border-radius:999px;background:rgba(255,255,255,.1);border:1px solid var(--line);overflow:hidden;margin:8px 0 6px}
+.pbar i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--teal),var(--accent));transition:width .8s ease}
+.pdots{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:.875rem;color:var(--muted)}
+.pdots .ok{color:var(--teal);font-weight:600}
+.pnote{margin:4px 0 0;font-size:.9rem;color:var(--muted)}
+.pnote b{color:var(--ink);white-space:nowrap}
 </style>
 </head>
 <body>
@@ -2802,6 +2816,18 @@ function markHere(el){if(hereObs)hereObs.disconnect();if(!('IntersectionObserver
  hereObs=new IntersectionObserver(es=>{es.forEach(e=>vis.set(e.target.id,e.isIntersecting));
   const on=links.find(a=>vis.get(a.getAttribute('href').slice(1)));links.forEach(a=>{const h=a===on;a.classList.toggle('here',h);h?a.setAttribute('aria-current','true'):a.removeAttribute('aria-current')})},{rootMargin:'-90px 0px -55% 0px'});
  links.forEach(a=>{const t=el.querySelector(a.getAttribute('href'));t&&hereObs.observe(t)})}
+/* Progress towards the Finale and the certificate, shown on every "Memory restored!" card */
+function badgeProgress(box,was,wasAll){if(!box)return;const d=certData(),n=ORDER.filter(k=>done.has(k)).length,bn=EXTRA.filter(k=>done.has(k)).length,b3=Math.min(bn,CERT_BONUS),all=n===ORDER.length;
+ const bar=(v,m)=>`<div class="pbar" role="progressbar" aria-valuemin="0" aria-valuemax="${m}" aria-valuenow="${v}"><i style="width:${Math.round(v/m*100)}%"></i></div>`;
+ const dots=ORDER.map(k=>`<span class="${done.has(k)?'ok':''}">${done.has(k)?'✓':'○'} ${M[k].short.split(' ·')[0]}</span>`).join('');
+ box.innerHTML=`<h3>🧭 Your progress</h3>
+ <div class="ptrack ${all?'open':''}"><div class="phead"><b>📡 Finale</b><span>${all?(wasAll?'✅ Unlocked':'🎉 Just unlocked!'):`🔒 ${n} / ${ORDER.length} story explorers`}</span></div>${bar(n,ORDER.length)}<div class="pdots">${dots}</div>
+ ${all?'<div class="row hidden" style="margin:8px 0 0" data-finrow><button class="btn teal" data-fin>📡 Play the Finale</button></div>':`<p class="pnote">Restore all ${ORDER.length} story explorers to unlock the Finale.</p>`}</div>
+ <div class="ptrack ${d.unlocked?'open':''}"><div class="phead"><b>🏅 Certificate</b><span>${d.unlocked?(was.unlocked?'✅ Unlocked':'🎉 Just unlocked!'):`🔒 ${n+b3} / ${ORDER.length+CERT_BONUS} steps`}</span></div>${bar(n+b3,ORDER.length+CERT_BONUS)}
+ <p class="pnote">📖 Story explorers: <b>${n} / ${ORDER.length}</b> · ⭐ Bonus explorers: <b>${b3} / ${CERT_BONUS}</b>${bn>CERT_BONUS?` <small>(${bn} done in total)</small>`:''}</p>
+ ${d.unlocked?'<div class="row" style="margin:8px 0 0"><button class="btn certbtn" data-cert>🏅 Get my certificate</button></div>':''}</div>`;
+ const cb=box.querySelector('[data-cert]');if(cb)cb.onclick=()=>{Sound.init();show('s-cert')};const fb=box.querySelector('[data-fin]');if(fb)fb.onclick=()=>playFinale();
+ if((all&&!wasAll)||(d.unlocked&&!was.unlocked))setTimeout(confetti,500)}
 /* 4. LEARN */
 function learn(el){
  const Q=[cur.quiz,...(cur.quiz2||[])];let qi=0;
@@ -2826,7 +2852,7 @@ ${cur.journey?`<h2 class="real-title" id="ln-journey">🚀 How I got there</h2><
  ${cur.nasa?`<div class="nasarec" id="ln-nasa"><h3>📇 NASA record</h3><p class="sub">From NASA's <b>Space Science Data Coordinated Archive (NSSDCA)</b>, the catalogue of every spacecraft and instrument sent into space. Unless a note below says otherwise, these details come from this record: <b>${cur.nasa.label}</b></p><div class="grid"><div><small>🆔 NSSDCA / COSPAR ID</small><b class="id">${cur.nasa.id}</b></div>${cur.nasa.rows.map(([i,t,d])=>`<div><small>${i} ${t}</small>${d}</div>`).join('')}</div><p class="foot">${cur.nasa.also?cur.nasa.also+' ':''}<a href="https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=${cur.nasa.id}" target="_blank" rel="noopener">Open the NSSDCA record ↗</a></p></div>`:''}
  ${cur.nasa2?`<div class="nasarec"${cur.nasa?'':' id="ln-nasa"'}><h3>📇 NASA record</h3><p class="sub">From NASA's <b>Space Science Data Coordinated Archive (NSSDCA)</b>, the catalogue of every spacecraft and instrument sent into space. Unless a note below says otherwise, these details come from this record: <b>${cur.nasa2.label}</b></p><div class="grid"><div><small>🆔 NSSDCA / COSPAR ID</small><b class="id">${cur.nasa2.id}</b></div>${cur.nasa2.rows.map(([i,t,d])=>`<div><small>${i} ${t}</small>${d}</div>`).join('')}</div><p class="foot">${cur.nasa2.also?cur.nasa2.also+' ':''}<a href="https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=${cur.nasa2.id}" target="_blank" rel="noopener">Open the NSSDCA record ↗</a></p></div>`:''}
  <div class="quiz" id="ln-quiz"><h3>🧠 Memory check <span class="mono" id="qn" style="font-size:.85rem;color:var(--muted)"></span></h3><p id="qq"></p><div class="opts" id="qo"></div><p class="why hidden"></p><div class="row hidden" id="qnext"><button class="btn teal">Next question ▶</button></div><div class="row" style="margin-top:6px"><button class="btn ghost" id="qskip">Skip question ▸</button></div></div>
- <div class="badge hidden">${cur.badgeImg?`<figure style="margin:0 auto 6px;max-width:240px"><img src="${cur.badgeImg.src}" alt="${cur.badgeImg.alt}" style="width:100%;border-radius:14px;border:2px solid var(--teal);display:block"><figcaption style="font-size:.8rem;color:var(--muted);margin-top:4px">${cur.badgeImg.cap}</figcaption></figure>`:`<div class="th">${cur.svg()}</div>`}<h2>Memory restored!</h2><p>${cur.name} will never forget you, explorer.</p>${GLITCH[curId]?`<p class="glitchline">📡 ${cur.short}: "${GLITCH[curId]}"</p>`:`<p class="mono" style="color:var(--teal)">📡 ${cur.short}: "${cur.bye}"</p>`}<div class="row"><button class="btn" id="back"></button><button class="btn ghost" id="back2"></button></div></div>
+ <div class="badge hidden">${cur.badgeImg?`<figure style="margin:0 auto 6px;max-width:240px"><img src="${cur.badgeImg.src}" alt="${cur.badgeImg.alt}" style="width:100%;border-radius:14px;border:2px solid var(--teal);display:block"><figcaption style="font-size:.8rem;color:var(--muted);margin-top:4px">${cur.badgeImg.cap}</figcaption></figure>`:`<div class="th">${cur.svg()}</div>`}<h2>Memory restored!</h2><p>${cur.name} will never forget you, explorer.</p>${GLITCH[curId]?`<p class="glitchline">📡 ${cur.short}: "${GLITCH[curId]}"</p>`:`<p class="mono" style="color:var(--teal)">📡 ${cur.short}: "${cur.bye}"</p>`}<div class="bprog" id="bprog"></div><div class="row"><button class="btn" id="back"></button><button class="btn ghost" id="back2"></button></div></div>
  ${cur.sources?`<div class="sources"><b>🔗 See the real NASA photos and records:</b>${cur.sources.map(([t,u])=>`<a href="${u}" target="_blank" rel="noopener">${t}</a>`).join('')}</div>`:''}`;
  el.querySelectorAll('.jump a').forEach(a=>a.onclick=e=>{e.preventDefault();const t=el.querySelector(a.getAttribute('href'));t&&t.scrollIntoView({behavior:'smooth',block:'start'})});
  markHere(el);
@@ -2846,13 +2872,16 @@ ${cur.journey?`<h2 class="real-title" id="ln-journey">🚀 How I got there</h2><
  nextRow.querySelector('button').onclick=()=>{qi++;ask()};
  el.querySelector('#qskip').onclick=()=>{if(qi<Q.length-1){qi++;ask()}else finish()};
  function finish(){Sound.sfx('win');Sound.speak('Memory restored! '+(GLITCH[curId]||cur.bye),curId);
+  const was=certData(),wasAll=ORDER.every(k=>done.has(k));
   done.add(curId);save();const all=ORDER.every(k=>done.has(k)),bk=el.querySelector('#back'),bonus=EXTRA.includes(curId);
+  badgeProgress(el.querySelector('#bprog'),was,wasAll);
   const nextB=EXTRA.find(k=>!done.has(k)),nextS=ORDER.find(k=>!done.has(k));
   const b2=el.querySelector('#back2');
   if(bonus){bk.textContent='Back to the map ▶';bk.onclick=()=>show('s-map');
    if(nextB){b2.textContent=`Next bonus: ${M[nextB].short} ▶`;b2.onclick=()=>openMission(nextB)}else if(all){b2.textContent='📡 Finale: Who is ECHO?';b2.onclick=()=>playFinale()}else{b2.textContent=`Next story explorer: ${M[nextS].short} ▶`;b2.onclick=()=>openMission(nextS)}}
   else{bk.textContent=all?'📡 Finale: Who is ECHO?':'Back to the map ▶';bk.onclick=()=>all?playFinale():show('s-map');
   if(all){b2.textContent='Back to the map';b2.onclick=()=>show('s-map')}else{b2.textContent=`Next story explorer: ${M[nextS].short} ▶`;b2.onclick=()=>openMission(nextS)}}
+  {const fr=el.querySelector('[data-finrow]');if(fr)fr.classList.toggle('hidden',/Finale/.test(bk.textContent+b2.textContent))}
   el.querySelector('#qskip').parentElement.classList.add('hidden');
   badge.classList.remove('hidden');setTimeout(()=>badge.scrollIntoView({behavior:'smooth',block:'center'}),300)}
  ask();
