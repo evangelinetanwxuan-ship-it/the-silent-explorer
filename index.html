@@ -206,6 +206,8 @@ p{line-height:1.5}
 .dig{position:relative;max-width:620px;margin:0 auto;aspect-ratio:300/190;border-radius:22px;overflow:hidden;border:1px solid var(--line);touch-action:none}
 .dig.moon{background:radial-gradient(ellipse at 50% 120%,#8d929b,#3a3e47 70%,#15171d)}
 .dig.mars{background:radial-gradient(ellipse at 50% 120%,#c9693e,#6e2c16 70%,#2a1108)}
+.dig.dig-viking{background:radial-gradient(ellipse at 50% 120%,#8d929b,#3a3e47 70%,#15171d)}
+.dig.dig-lm,.dig.dig-alsep{background:radial-gradient(ellipse at 50% 120%,#f2cf5b,#8a6414 70%,#2b1f06)}
 .dig .machine{position:absolute;inset:6% 6% 2%}
 .dig canvas{position:absolute;inset:0;width:100%;height:100%;cursor:grab;transition:opacity 1s}
 .dig-hint{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);background:rgba(0,0,0,.55);padding:4px 12px;border-radius:999px;font-size:.9rem;pointer-events:none}
@@ -793,7 +795,7 @@ small{font-size:.875rem}
       <div id="certBody">
       <div class="cert-name"><label for="certName">Write your name:</label><input id="certName" maxlength="30" placeholder="Your name" autocomplete="off"></div>
       <div class="cert" id="cert"></div>
-      <div class="row"><button class="btn teal" id="certSave">🖼️ Save as picture</button><button class="btn ghost" id="certPrint">🖨️ Print</button></div>
+      <div class="row"><button class="btn teal" id="certSave">📄 Download PDF</button><button class="btn ghost" id="certPrint">🖨️ Print</button></div>
       <p class="cert-hint" id="certHint"></p>
       </div>
     </div>
@@ -2274,20 +2276,35 @@ function renderCert(){const d=certData();
  <div class="sigs"><div class="sig"><i>ECHO-7</i>Guide · story character</div><div class="sig"><i>${d.date}</i>Date</div><div class="sig"><i>Aira</i>Fellow explorer · story character</div></div>
  <div class="fine">The Silent Explorers · NASA Space Apps 2026 project. A just-for-fun certificate from the game, not an official NASA document.</div>`}
 $('#certName').oninput=e=>{certName=e.target.value;try{localStorage.setItem('seName',certName)}catch(_){}$('#certWho').textContent=certName.trim()||'Space Explorer'};
-$('#certPrint').onclick=()=>{try{window.print()}catch(e){$('#certHint').textContent='Printing is blocked here — try 🖼️ Save as picture instead.'}};
-$('#certSave').onclick=async()=>{const b=$('#certSave');b.disabled=true;b.textContent='⏳ Making your picture…';
- const hint=$('#certHint'),fname=(certName.trim()||'explorer').replace(/[^\w -]+/g,'').trim().replace(/\s+/g,'-').slice(0,30)||'explorer';
- let url;try{url=await certPNG()}catch(e){hint.textContent='Sorry, the picture could not be made. Try 🖨️ Print or take a screenshot!';b.disabled=false;b.textContent='🖼️ Save as picture';return}
- const showPic=()=>{const lb=$('#lightbox');lb.querySelector('img').src=url;lb.querySelector('img').alt='Your Memory Keeper certificate';lb.classList.remove('hidden');hint.textContent='Right-click (or press and hold) the picture and choose Save.'};
+$('#certPrint').onclick=()=>{try{window.print()}catch(e){$('#certHint').textContent='Printing is blocked here — try 📄 Download PDF instead.'}};
+$('#certSave').onclick=async()=>{const b=$('#certSave'),lbl='📄 Download PDF';b.disabled=true;b.textContent='⏳ Making your PDF…';
+ const hint=$('#certHint'),fname=(certName.trim()||'explorer').replace(/[^\w -]+/g,'').trim().replace(/\s+/g,'-').slice(0,30)||'explorer',file=`memory-keeper-certificate-${fname}.pdf`;
+ let url,pdf;try{url=await certPNG('jpeg');pdf=certPDF(url)}catch(e){hint.textContent='Sorry, the PDF could not be made. Try 🖨️ Print or take a screenshot!';b.disabled=false;b.textContent=lbl;return}
  let dl=null;try{dl=window.claude&&await window.claude.use('downloads')}catch(e){}
- if(dl){try{const blob=await (await fetch(url)).blob();await dl.save({filename:`memory-keeper-certificate-${fname}.png`,data:blob});hint.textContent='✔ Certificate saved!';Sound.sfx('win')}
-  catch(e){if(e&&e.code==='declined')hint.textContent='No problem — you can save it any time.';else if(e&&e.code==='rate_limited')hint.textContent='One moment — try again in a few seconds.';else showPic()}}
- else showPic();
- b.disabled=false;b.textContent='🖼️ Save as picture'};
+ if(dl){try{await dl.save({filename:file,data:pdf});hint.textContent='✔ Certificate PDF saved!';Sound.sfx('win')}
+  catch(e){hint.textContent=e&&e.code==='declined'?'No problem — you can save it any time.':e&&e.code==='rate_limited'?'One moment — try again in a few seconds.':'Sorry, the PDF could not be saved. Try 🖨️ Print instead.'}}
+ else{const href=URL.createObjectURL(pdf),a=document.createElement('a');a.href=href;a.download=file;document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(href),60000);hint.textContent='✔ Your certificate PDF is downloading! Look in your Downloads folder.';Sound.sfx('win')}
+ b.disabled=false;b.textContent=lbl};
+/* Build a one-page A4 landscape PDF around the certificate picture (JPEG) */
+function certPDF(jpgUrl){
+ const bin=atob(jpgUrl.split(',')[1]),img=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)img[i]=bin.charCodeAt(i);
+ const W=1600,H=1130,PW=842,PH=595,sc=Math.min(PW/W,PH/H),dw=(W*sc).toFixed(2),dh=(H*sc).toFixed(2),dx=((PW-W*sc)/2).toFixed(2),dy=((PH-H*sc)/2).toFixed(2);
+ const enc=new TextEncoder(),parts=[],offs=[];let len=0;const put=x=>{const u=typeof x==='string'?enc.encode(x):x;parts.push(u);len+=u.length};
+ const draw=`q ${dw} 0 0 ${dh} ${dx} ${dy} cm /Im0 Do Q`;
+ put('%PDF-1.4\n%\xE2\xE3\xCF\xD3\n'.replace(/[^\n -~]/g,'#'));
+ const obj=(n,body)=>{offs[n]=len;put(`${n} 0 obj\n`);body();put('\nendobj\n')};
+ obj(1,()=>put('<< /Type /Catalog /Pages 2 0 R >>'));
+ obj(2,()=>put('<< /Type /Pages /Kids [3 0 R] /Count 1 >>'));
+ obj(3,()=>put(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${PW} ${PH}] /Resources << /XObject << /Im0 4 0 R >> >> /Contents 5 0 R >>`));
+ obj(4,()=>{put(`<< /Type /XObject /Subtype /Image /Width ${W} /Height ${H} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${img.length} >>\nstream\n`);put(img);put('\nendstream')});
+ obj(5,()=>put(`<< /Length ${draw.length} >>\nstream\n${draw}\nendstream`));
+ const x=len;put(`xref\n0 6\n0000000000 65535 f \n${[1,2,3,4,5].map(n=>String(offs[n]).padStart(10,'0')+' 00000 n \n').join('')}trailer\n<< /Size 6 /Root 1 0 R /Info << /Title (Memory Keeper certificate) /Producer (The Silent Explorers) >> >>\nstartxref\n${x}\n%%EOF\n`);
+ return new Blob(parts,{type:'application/pdf'})}
 function svgImg(str){const defs=document.querySelector('svg defs').outerHTML;
  const s=str.replace(/<svg([^>]*)>/,`<svg xmlns="http://www.w3.org/2000/svg" width="300" height="190"$1>${defs}`);
  return new Promise((ok,no)=>{const i=new Image();i.onload=()=>ok(i);i.onerror=no;i.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(s)})}
-async function certPNG(){
+async function certPNG(fmt){
  const d=certData(),W=1600,H=1130,c=document.createElement('canvas');c.width=W;c.height=H;const g=c.getContext('2d');
  try{await Promise.all(['700 80px Fredoka','400 30px Fredoka','600 30px Fredoka','400 24px "Space Mono"'].map(f=>document.fonts.load(f)))}catch(e){}
  const imgs=await Promise.all(ORDER.map(k=>svgImg(CERT_SVG[k]())));
@@ -2319,7 +2336,7 @@ async function certPNG(){
  g.save();g.translate(1430,170);g.rotate(-.21);g.fillStyle='#fff8e6';g.beginPath();g.arc(0,0,84,0,7);g.fill();
  const sg=g.createRadialGradient(-20,-24,10,0,0,76);sg.addColorStop(0,'#ffe7a3');sg.addColorStop(1,'#d9a640');g.fillStyle=sg;g.strokeStyle='#d9a640';g.lineWidth=5;g.beginPath();g.arc(0,0,74,0,7);g.fill();g.beginPath();g.arc(0,0,86,0,7);g.stroke();
  g.font='72px sans-serif';g.textAlign='center';g.textBaseline='middle';g.fillText(d.title[0]==='M'?'🏆':d.all?'🏅':'⭐',0,4);g.restore();
- return c.toDataURL('image/png')}
+ return fmt==='jpeg'?c.toDataURL('image/jpeg',.92):c.toDataURL('image/png')}
 
 /* ---------- Mission flow ---------- */
 let cur=null,curId=null;
@@ -2353,7 +2370,7 @@ document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.tar
 /* 1. DISCOVER — brush away the dust */
 function discover(el){
  el.innerHTML=`<p class="lead">${cur.world==='deep'?'Something is hiding in the darkness of space… Brush away the cosmic dust to discover it!':`Something is buried under ${cur.world==='moon'?'grey Moon dust':'red Mars dust'}… Brush it away to discover what's hidden!`}</p>
- <div class="dig ${cur.world}"><div class="machine">${cur.svg()}</div><canvas></canvas><div class="dig-hint">🖐️ Drag to brush the dust away</div></div>
+ <div class="dig ${cur.world} dig-${curId}"><div class="machine">${cur.svg()}</div><canvas></canvas><div class="dig-hint">🖐️ Drag to brush the dust away</div></div>
  <div class="row"><button class="btn ghost" id="skipDig">Blow it all away 💨</button></div>
  <div class="reveal hidden"><h2>You found ${cur.name}!</h2><p>${cur.nick}</p><div class="photos${cur.photoB?' two':''}">${photoHTML()}${cur.photoB?photoHTML(cur.photoB):''}</div><button class="btn" id="wake">Wake it up ▶</button></div>`;
  const box=el.querySelector('.dig'),cv=box.querySelector('canvas'),g=cv.getContext('2d');
