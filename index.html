@@ -1896,12 +1896,13 @@ const Sound=(()=>{
   phoenix:{pitch:1.15,rate:.95,want:/Moira|Tessa|Google UK English Female|Female/i},ingen:{pitch:1.5,rate:1.1,want:/Samantha|Google US English|Female/i},dawn:{pitch:1.05,rate:.92,want:/Google UK English Female|Serena|Female/i},
   near:{pitch:1.2,rate:1,want:/Alex|Google US English|Male/i},pioneer:{pitch:.75,rate:.85,want:/Daniel|Fred|Male/i},kepler:{pitch:1,rate:.88,want:/Tessa|Moira|Female/i},
   aira:{pitch:1.55,rate:1.05,want:/Samantha|Google US English|Zira|Karen|Female/i},
-  atok:{pitch:.65,rate:.85,want:/Daniel|Google UK English Male|Fred|Male/i},
+  atok:{pitch:.65,rate:.85,want:/Daniel|Google UK English Male|Fred|Male/i,nat:/Ryan|Thomas|Roger|Guy|Christopher|Eric|Davis|Andrew|Brian|Arthur|Oliver/i,natPitch:.85,natRate:.88},
   echo:{pitch:.95,rate:.88,want:/Google UK English Female|Moira|Tessa|Serena/i},
   ben:{pitch:1.0,rate:1.08,want:/Alex|Google US English|David|Male/i},
   maya:{pitch:1.15,rate:.98,want:/Karen|Victoria|Google US English|Female/i},
   kofi:{pitch:.8,rate:.95,want:/Daniel|Google UK English Male|Mark|Male/i}};
- function pick(p){const en=voices.filter(v=>/^en/i.test(v.lang));return en.find(v=>p.want.test(v.name))||en[0]||null}
+ const isNat=v=>/Natural|Neural|Premium|Enhanced/i.test(v.name);
+ function pick(p){const en=voices.filter(v=>/^en/i.test(v.lang));return (p.nat&&en.filter(isNat).find(v=>p.nat.test(v.name)))||en.find(v=>p.want.test(v.name))||en[0]||null}
  function clean(s){return s.replace(/[\u{1F300}-\u{1FAFF}☀-➿]/gu,'').replace(/[—–]/g,', ').replace(/…/g,'... ').replace(/"/g,'')}
  /* Recorded human voices: VOICE_REC[who][line] = audio data URI. A recorded line plays instead of the computer voice. */
  let recAudio=null;const recKey=t=>String(t).replace(/<[^>]+>/g,'').replace(/[\u2018\u2019]/g,"'").replace(/\s+/g,' ').trim();
@@ -1919,7 +1920,7 @@ const Sound=(()=>{
   if(!hasTTS){onend&&onend();return false}
   try{speechSynthesis.cancel()}catch(e){}
   const p=PROF[who]||PROF.narrator,u=new SpeechSynthesisUtterance(clean(text));
-  u.pitch=p.pitch;u.rate=p.rate;const v=pick(p);if(v){u.voice=v;u.lang=v.lang}else u.lang='en-US';
+  const v=pick(p),nat=v&&p.nat&&isNat(v)&&p.nat.test(v.name);u.pitch=nat?p.natPitch:p.pitch;u.rate=nat?p.natRate:p.rate;if(v){u.voice=v;u.lang=v.lang}else u.lang='en-US';
   u.onstart=()=>{speaking=true;level();document.dispatchEvent(new Event('voicestart'))};
   u.onend=u.onerror=()=>{speaking=false;level();document.dispatchEvent(new Event('voiceend'));onend&&onend()};
   setTimeout(()=>{try{speechSynthesis.speak(u)}catch(e){}},70);return true}
