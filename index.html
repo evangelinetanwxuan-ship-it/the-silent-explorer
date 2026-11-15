@@ -1868,9 +1868,20 @@ const Sound=(()=>{
   kofi:{pitch:.8,rate:.95,want:/Daniel|Google UK English Male|Mark|Male/i}};
  function pick(p){const en=voices.filter(v=>/^en/i.test(v.lang));return en.find(v=>p.want.test(v.name))||en[0]||null}
  function clean(s){return s.replace(/[\u{1F300}-\u{1FAFF}☀-➿]/gu,'').replace(/[—–]/g,', ').replace(/…/g,'... ').replace(/"/g,'')}
- function stopVoice(){if(hasTTS)try{speechSynthesis.cancel()}catch(e){}speaking=false;level();document.dispatchEvent(new Event('voiceend'))}
+ /* Recorded human voices: VOICE_REC[who][line] = audio data URI. A recorded line plays instead of the computer voice. */
+ let recAudio=null;const recKey=t=>String(t).replace(/<[^>]+>/g,'').replace(/[\u2018\u2019]/g,"'").replace(/\s+/g,' ').trim();
+ function recFor(text,who){const r=window.VOICE_REC&&VOICE_REC[who];return r?r[recKey(text)]||null:null}
+ function stopRec(){if(recAudio){const a=recAudio;recAudio=null;a.onended=a.onerror=null;try{a.pause()}catch(e){}}}
+ function stopVoice(){stopRec();if(hasTTS)try{speechSynthesis.cancel()}catch(e){}speaking=false;level();document.dispatchEvent(new Event('voiceend'))}
  function speak(text,who,onend){
-  if(!hasTTS||!on.voice){onend&&onend();return false}
+  if(!on.voice){onend&&onend();return false}
+  const rec=recFor(text,who);
+  if(rec){stopRec();if(hasTTS)try{speechSynthesis.cancel()}catch(e){}
+   const a=new Audio(rec);recAudio=a;let fin=false;
+   const end=()=>{if(fin)return;fin=true;if(recAudio===a)recAudio=null;speaking=false;level();document.dispatchEvent(new Event('voiceend'));onend&&onend()};
+   a.onplay=()=>{speaking=true;level();document.dispatchEvent(new Event('voicestart'))};a.onended=a.onerror=end;
+   a.play().catch(end);return true}
+  if(!hasTTS){onend&&onend();return false}
   try{speechSynthesis.cancel()}catch(e){}
   const p=PROF[who]||PROF.narrator,u=new SpeechSynthesisUtterance(clean(text));
   u.pitch=p.pitch;u.rate=p.rate;const v=pick(p);if(v){u.voice=v;u.lang=v.lang}else u.lang='en-US';
@@ -1882,7 +1893,7 @@ const Sound=(()=>{
   vb.classList.toggle('off',!on.voice);vb.setAttribute('aria-pressed',on.voice);vb.textContent=on.voice?'🗣️ Voice on':'🗣️ Voice off';
   if(!hasTTS)vb.classList.add('hidden')}
  function toggle(k){on[k]=!on[k];try{localStorage.setItem('seSound',JSON.stringify(on))}catch(e){}if(k==='voice'&&!on.voice)stopVoice();init();level();paint()}
- return {init,hold,setMood,sfx,speak,stopVoice,toggle,paint,get voice(){return on.voice&&hasTTS}};
+ return {init,hold,setMood,sfx,speak,stopVoice,toggle,paint,get voice(){return on.voice&&(hasTTS||!!window.VOICE_REC)}};
 })();
 
 /* ---------- Helpers ---------- */
